@@ -43,7 +43,7 @@ public class VideoGame extends Product{
 
     @Override
     public String getDescription() {
-        return ("Videojuego: "+ this.getId()+"\nPlataforma: "+this.platform + 
+        return ("Videojuego: "+ this.getTitle()+"\nPlataforma: "+this.platform + 
                 "\nGenero: " + this.genre + "\nClasificación de edad: "+ this.ageRating
                 + "\nPrecio: "+ this.getPrice());
     }
