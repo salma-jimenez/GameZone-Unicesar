@@ -11,13 +11,13 @@ package com.mycompany.gamezone.model;
 public class Console extends Product{
     private String brand;
     private String model;
-    private String generarion;
+    private String generation;
 
-    public Console(String brand, String model, String generarion, String id, String title, double price, int quantityAvailable) {
+    public Console(String brand, String model, String generation, String id, String title, double price, int quantityAvailable) {
         super(id, title, price, quantityAvailable);
         this.brand = brand;
         this.model = model;
-        this.generarion = generarion;
+        this.generation = generation;
     }
 
     public String getBrand() {
@@ -36,18 +36,18 @@ public class Console extends Product{
         this.model = model;
     }
 
-    public String getGenerarion() {
-        return generarion;
+    public String getGeneration() {
+        return generation;
     }
 
-    public void setGenerarion(String generarion) {
-        this.generarion = generarion;
+    public void setGeneration(String generation) {
+        this.generation = generation;
     }
 
     @Override
     public String getDescription() {
         return ("Consola: "+ this.getTitle()+"\nMarca: "+this.brand + 
-                "\nModelo: " + this.model + "\nGeneracion: "+ this.getGenerarion()
+                "\nModelo: " + this.model + "\nGeneracion: "+ this.getGeneration()
                 + "\nPrecio: "+ this.getPrice());
     }
     
