@@ -1,15 +1,15 @@
 
 package com.mycompany.gamezone.model;
 
-public class Product {
+public abstract class Product {
     private String id;
-    private String tittle;
+    private String title;
     private double price;
     private int quantityAvailable;
 
-    public Product(String id, String tittle, double price, int quantityAvailable) {
+    public Product(String id, String title, double price, int quantityAvailable) {
         this.id = id;
-        this.tittle = tittle;
+        this.title = title;
         this.price = price;
         this.quantityAvailable = quantityAvailable;
     }
@@ -22,12 +22,12 @@ public class Product {
         this.id = id;
     }
 
-    public String getTittle() {
-        return tittle;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public double getPrice() {
