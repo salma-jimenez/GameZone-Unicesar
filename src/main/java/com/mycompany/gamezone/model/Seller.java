@@ -70,6 +70,9 @@ public class Seller extends Person {
      */
     @Override
     public String describeRole() {
+        return ("Vendedor: " + this.getName() + "\nCódigo de empleado: " + this.employeeCode
+            + "\nTurno: " + this.shift
+            + "\nTeléfono: " + this.getPhone());
         }
 
 }
