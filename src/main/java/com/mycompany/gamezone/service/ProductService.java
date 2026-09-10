@@ -18,7 +18,9 @@ public class ProductService {
     }
     
     public void registerProduct(Product product){
-        
+        List<Product> products = productRepository.load();
+        products.add(product);
+        productRepository.save(products);
     }
     
     public List<Product> getAllProducts(){
