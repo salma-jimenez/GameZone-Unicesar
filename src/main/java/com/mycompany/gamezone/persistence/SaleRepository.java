@@ -1,13 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.gamezone.persistence;
 
+import com.mycompany.gamezone.model.Sale;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
- * @author PC
+ * Handles persistence operations for Sale entities.
  */
 public class SaleRepository {
-    
+    private final List<Sale> sales = new ArrayList<>();
+
+    public void save(Sale sale) {
+        sales.add(sale);
+    }
+
+    public List<Sale> findAll() {
+        return new ArrayList<>(sales);
+    }
+
+    public Sale findById(String id) {
+        return sales.stream()
+                .filter(s -> s.getId().equalsIgnoreCase(id))
+                .findFirst()
+                .orElse(null);
+    }
 }
