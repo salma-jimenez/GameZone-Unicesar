@@ -1,6 +1,6 @@
-package com.mycompany.gamezone.ui;
+package com.gamezone.ui;
 
-import com.mycompany.gamezone.service.SaleService;
+import com.gamezone.service.SaleService;
 import javax.swing.JOptionPane;
 
 /**

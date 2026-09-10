@@ -1,9 +1,9 @@
 
-package com.mycompany.gamezone.persistence;
+package com.gamezone.persistence;
 
-import com.mycompany.gamezone.model.Console;
-import com.mycompany.gamezone.model.Product;
-import com.mycompany.gamezone.model.VideoGame;
+import com.gamezone.model.Console;
+import com.gamezone.model.Product;
+import com.gamezone.model.VideoGame;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

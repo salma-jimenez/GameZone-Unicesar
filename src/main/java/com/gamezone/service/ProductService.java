@@ -1,8 +1,8 @@
 
-package com.mycompany.gamezone.service;
+package com.gamezone.service;
 
-import com.mycompany.gamezone.model.Product;
-import com.mycompany.gamezone.persistence.ProductRepository;
+import com.gamezone.model.Product;
+import com.gamezone.persistence.ProductRepository;
 import java.util.List;
 
 /**

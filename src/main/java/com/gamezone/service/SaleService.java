@@ -1,7 +1,7 @@
-package com.mycompany.gamezone.service;
+package com.gamezone.service;
 
-import com.mycompany.gamezone.model.Sale;
-import com.mycompany.gamezone.persistence.SaleRepository;
+import com.gamezone.model.Sale;
+import com.gamezone.persistence.SaleRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 

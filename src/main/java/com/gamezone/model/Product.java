@@ -1,5 +1,5 @@
 
-package com.mycompany.gamezone.model;
+package com.gamezone.model;
 /**
  * Represents the base abstract product in the GameZone store.
  * Contains common properties such as ID, title, price, and available quantity.

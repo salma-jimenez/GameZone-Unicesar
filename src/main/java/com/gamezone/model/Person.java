@@ -1,4 +1,4 @@
-package com.mycompany.gamezone.model;
+package com.gamezone.model;
 
 /**
  * Represents a generic person that interacts with the store, such as a client

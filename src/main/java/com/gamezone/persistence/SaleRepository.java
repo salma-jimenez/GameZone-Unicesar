@@ -1,6 +1,6 @@
-package com.mycompany.gamezone.persistence;
+package com.gamezone.persistence;
 
-import com.mycompany.gamezone.model.Sale;
+import com.gamezone.model.Sale;
 import java.util.ArrayList;
 import java.util.List;
 
