@@ -24,6 +24,9 @@ public class Customer extends Person{
     */
     public Customer(int id, String name, String email, String phone) {
         super(id, name, phone);
+         if (email == null || !email.contains("@")) {
+        throw new IllegalArgumentException("El email debe tener un formato válido.");
+         }
         this.email = email;
         
     }
