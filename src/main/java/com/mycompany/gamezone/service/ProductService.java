@@ -3,7 +3,6 @@ package com.mycompany.gamezone.service;
 
 import com.mycompany.gamezone.model.Product;
 import com.mycompany.gamezone.persistence.ProductRepository;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +28,13 @@ public class ProductService {
     }
     
     public void updateStock(String productId, int quantity){
-        
+        List<Product> products = productRepository.load();
+        for (Product p : products){
+            if(p.getId().equals(productId)){
+                p.setQuantityAvailable(quantity);
+                break;
+            }
+        }
+        productRepository.save(products);
     }
 }
