@@ -17,6 +17,8 @@ public class Seller extends Person {
      * @param phone the person's contact phone number
      * @param employeeCode the vendor's employee code
      * @param shift the vendor's assigned work shift
+     * @throws IllegalArgumentException if employeeCode is not greater than
+     * zero, or if shift is null or blank
      */
     public Seller(int id, String name, String phone, int employeeCode, String shift) {
         super(id, name, phone);

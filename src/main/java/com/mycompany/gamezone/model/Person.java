@@ -19,6 +19,8 @@ public abstract class Person {
      * @param id the person's unique identifier
      * @param name the person's full name
      * @param phone the person's contact phone number
+     *  @throws IllegalArgumentException if id is not greater than zero,
+ *         or if name or phone are null or blank
      */
     public Person(int id, String name, String phone) {
         if (id <= 0) {

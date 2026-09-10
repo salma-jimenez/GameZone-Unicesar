@@ -21,6 +21,7 @@ public class Customer extends Person{
     * @param name the person's full name
     * @param email the person's contact phone number
     * @param phone the client's email address
+    * @throws IllegalArgumentException if email is null or does not contain "@"
     */
     public Customer(int id, String name, String email, String phone) {
         super(id, name, phone);
