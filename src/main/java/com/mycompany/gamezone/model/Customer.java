@@ -13,7 +13,6 @@ import java.util.List;
 public class Customer extends Person{
     
      private String email;
-     private List<Sale> purchaseHistory;
 
    /**
     * Creates a new Client with the given identification and contact data.
@@ -44,6 +43,7 @@ public class Customer extends Person{
     public void setEmail(String email) {
         this.email = email;
     }
+   
     /**
      * Returns role-specific information about this client,
      * including email and number of purchases made.
@@ -55,8 +55,7 @@ public class Customer extends Person{
     public String describeRole() {
         return ("Cliente: " + this.getName() + "\nEmail: " + this.email
             + "\nTeléfono: " + this.getPhone()
-            + "\nCompras realizadas: " + this.purchaseHistory.size());
+            );
     }
      
-    
 }
