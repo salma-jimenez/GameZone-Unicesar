@@ -18,7 +18,7 @@ public class Seller extends Person {
      * @param employeeCode the vendor's employee code
      * @param shift        the vendor's assigned work shift
      */
-    public Seller(int id, String name, String phone, String shift, int employeeCode) {
+    public Seller(int id, String name, String phone, int employeeCode,  String shift) {
         super(id, name, phone);
         this.employeeCode = employeeCode;
         this.shift = shift;
@@ -36,7 +36,7 @@ public class Seller extends Person {
     /**
      * Sets the vendor's employee code.
      *
-     * @param idEmpleado the new employee code to assign
+     * @param employeeCode the new employee code to assign
      */
     public void setEmployeeCode(int employeeCode) {
         this.employeeCode = employeeCode;
