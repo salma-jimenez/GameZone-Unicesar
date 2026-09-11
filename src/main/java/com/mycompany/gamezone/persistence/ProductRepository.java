@@ -13,12 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author Alejandro
+ * Manages persistence in .txt text files by reading and writing objects, using a defined file path.
+ * 
+ * @author Luis Guerrero
+ * @version 1.0
  */
 public class ProductRepository {
     private static final String filePath = "products.txt";
     
+    /**
+     * Receives a list of products and writes them to the .txt file, structuring the lines according to the VideoGame or Console subclass.
+     * @param products the list of products to be saved
+     */
     public void save(List<Product> products){
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             for (Product p : products) {
@@ -38,6 +44,10 @@ public class ProductRepository {
         }
     }
     
+    /**
+     * Reads the text file line by line, reconstructs the VideoGame or Console instances based on the data, and returns the compiled list.
+     * @return the list of products loaded from storage
+     */
     public List<Product> load(){
         List<Product> products = new ArrayList<>();
         File file = new File(filePath);
