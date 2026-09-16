@@ -22,6 +22,11 @@ public abstract class Product {
      * @param price the price of the product
      * @param quantityAvailable the initial stock quantity available
      */
+    
+    
+    public Product() {
+    }
+
     public Product(String id, String title, double price, int quantityAvailable) {
         this.id = id;
         this.title = title;
