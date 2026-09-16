@@ -56,7 +56,7 @@ public class PersonRepository {
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(";");
                 String type = fields[0];
-                int id = Integer.parseInt(fields[1]);
+                String id = fields[1];
                 String name = fields[2];
                 String phone = fields[3];
 
