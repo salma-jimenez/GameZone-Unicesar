@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author Salomejimenez
  */
-public class AccesoryRepository {
+public class AccessoryRepository {
 
     private static String FILE_PATH = "data/accessories.csv";
     private static String CONTROLLER_TYPE = "CONTROLLER";
