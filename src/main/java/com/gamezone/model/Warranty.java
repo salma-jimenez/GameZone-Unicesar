@@ -15,22 +15,22 @@ public abstract class Warranty {
     private String idWarranty;
     private Product product;
     private Sale sale;
-    private LocalDateTime LocalDateStart;
-    private LocalDateTime LocalDateEnd;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 
     /**
      *
      * @param idWarranty the warranty's unique identifier
      * @param product product under warranty 
      * @param sale purchase of the product
-     * @param LocalDateStart the system's local time to determine the exact time of purchase
+     * @param startDate the date the warranty starts
      */
-    public Warranty(String idWarranty, Product product, Sale sale, LocalDateTime LocalDateStart, LocalDateTime LocalDateEnd) {    
+    public Warranty(String idWarranty, Product product, Sale sale, LocalDateTime startDate, LocalDateTime endDate) {    
         this.idWarranty = idWarranty;
         this.product = product;
         this.sale = sale;
-        this.LocalDateStart = LocalDateStart;
-        this.LocalDateEnd = LocalDateEnd;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
     /**
      * Product for which you would like to add a warranty
@@ -84,46 +84,37 @@ public abstract class Warranty {
         this.idWarranty = idWarranty;
     }
 
-
     /**
      * system local time 
      * 
-     * @return LocalDateStart
+     * @return the date the warranty starts
      */
-
-    public LocalDateTime getLocalDateStart() {
-        return LocalDateStart;
+    public LocalDateTime getStartDate() {
+        return startDate;
     }
 
     /**
-     * Sets system local time 
-     *
-     * @param LocalDateStart
+     * @return the date the warranty ends
      */
-
-    public void setLocalDateStart(LocalDateTime LocalDateStart) {
-        this.LocalDateStart = LocalDateStart;
+    public LocalDateTime getEndDate() {
+        return endDate;
     }
-
     /**
-     * system local time 
-     *
-     * @return LocalDateEnd
+     * 
+     * @param startDate 
      */
 
-    public LocalDateTime getLocalDateEnd() {
-        return LocalDateEnd;
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
     }
-
     /**
-     * sets system local time 
-     *
-     * @param LocalDateEnd
+     * 
+     * @param endDate 
      */
-
-    public void setLocalDateEnd(LocalDateTime LocalDateEnd) {
-        this.LocalDateEnd = LocalDateEnd;
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
     }
+    
 
     // Each subclass must specify the warranty period for the product (polymorphism)
     public abstract int getDurationInMonths();
