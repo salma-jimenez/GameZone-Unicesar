@@ -8,7 +8,8 @@ import java.util.List;
  * Handles persistence operations for Sale entities.
  */
 public class SaleRepository {
-    private final List<Sale> sales = new ArrayList<>();
+
+    private List<Sale> sales = new ArrayList<>();
 
     public void save(Sale sale) {
         sales.add(sale);
@@ -20,7 +21,7 @@ public class SaleRepository {
 
     public Sale findById(String id) {
         return sales.stream()
-                .filter(s -> s.getId().equalsIgnoreCase(id))
+                .filter(s -> s.getIdSale().equalsIgnoreCase(id))
                 .findFirst()
                 .orElse(null);
     }
