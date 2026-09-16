@@ -23,7 +23,7 @@ public class Customer extends Person{
     * @param phone the client's email address
     * @throws IllegalArgumentException if email is null or does not contain "@"
     */
-    public Customer(int id, String name, String email, String phone) {
+    public Customer(int id, String name, String phone, String email) {
         super(id, name, phone);
          if (email == null || !email.contains("@")) {
         throw new IllegalArgumentException("El email debe tener un formato válido.");
