@@ -1,10 +1,10 @@
 
-package com.mycompany.gamezone.service;
+package com.gamezone.service;
 
-import com.mycompany.gamezone.model.Customer;
-import com.mycompany.gamezone.model.Person;
-import com.mycompany.gamezone.model.Seller;
-import com.mycompany.gamezone.persistence.PersonRepository;
+import com.gamezone.model.Customer;
+import com.gamezone.model.Person;
+import com.gamezone.model.Seller;
+import com.gamezone.persistence.PersonRepository;
 import java.util.ArrayList;
 import java.util.List;
 

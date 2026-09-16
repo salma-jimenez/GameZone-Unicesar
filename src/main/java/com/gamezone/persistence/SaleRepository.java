@@ -1,0 +1,28 @@
+package com.gamezone.persistence;
+
+import com.gamezone.model.Sale;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Handles persistence operations for Sale entities.
+ */
+public class SaleRepository {
+
+    private List<Sale> sales = new ArrayList<>();
+
+    public void save(Sale sale) {
+        sales.add(sale);
+    }
+
+    public List<Sale> findAll() {
+        return new ArrayList<>(sales);
+    }
+
+    public Sale findById(String id) {
+        return sales.stream()
+                .filter(s -> s.getIdSale().equalsIgnoreCase(id))
+                .findFirst()
+                .orElse(null);
+    }
+}

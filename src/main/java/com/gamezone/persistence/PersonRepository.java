@@ -1,8 +1,8 @@
-package com.mycompany.gamezone.persistence;
+package com.gamezone.persistence;
 
-import com.mycompany.gamezone.model.Customer;
-import com.mycompany.gamezone.model.Person;
-import com.mycompany.gamezone.model.Seller;
+import com.gamezone.model.Customer;
+import com.gamezone.model.Person;
+import com.gamezone.model.Seller;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
