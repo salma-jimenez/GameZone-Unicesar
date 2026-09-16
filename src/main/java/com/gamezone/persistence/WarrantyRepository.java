@@ -24,7 +24,7 @@ import java.util.List;
  * @version 1.0
  */
 public class WarrantyRepository {
-    private static final String FILE_PATH = "warranties.csv";
+    private static final String FILE_PATH = "data/warranties.csv";
     private static final String BASIC_TYPE = "BASIC";
     private static final String EXTENDED_TYPE = "EXTENDED";
     
@@ -50,6 +50,10 @@ public class WarrantyRepository {
      * @param warranties the warranties to save
      */
      public void saveAll(List<Warranty> warranties){
+         File file = new File(FILE_PATH);
+         if (file.getParentFile() != null && !file.getParentFile().exists()) {
+             file.getParentFile().mkdirs();
+         }
          try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))){
              for (Warranty warranty : warranties){
                  String type = (warranty instanceof BasicWarranty) ? BASIC_TYPE : EXTENDED_TYPE;
