@@ -20,7 +20,7 @@ public class Seller extends Person {
      * @throws IllegalArgumentException if employeeCode is not greater than
      * zero, or if shift is null or blank
      */
-    public Seller(int id, String name, String phone, int employeeCode, String shift) {
+    public Seller(String id, String name, String phone, int employeeCode, String shift) {
         super(id, name, phone);
         if (employeeCode <= 0) {
             throw new IllegalArgumentException("El código de empleado debe ser mayor a cero.");
