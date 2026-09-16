@@ -85,5 +85,14 @@ public class ProductRepository {
         }
         return products;
     }
+    
+    public Product findById(String id) {
+        for (Product p : load()) {
+            if (p.getId().equalsIgnoreCase(id)) {
+                return p;
+            }
+        }
+        return null;
+    }
 }
 
