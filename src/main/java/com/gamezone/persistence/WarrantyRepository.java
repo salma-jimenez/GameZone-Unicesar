@@ -68,8 +68,11 @@ public class WarrantyRepository {
      }
     
      /**
+      * Loads all warranties from the CSV file, reconstructing the correct
+      * concrete subclass (BasicWarranty or ExtendedWarranty) for each row.
       * 
-      * @return 
+      * @return he list of warranties found in the file, or an empty list
+      * if the file does not exist
       */
     public List<Warranty> loadAll(){
         List<Warranty> warranties = new ArrayList<>();
