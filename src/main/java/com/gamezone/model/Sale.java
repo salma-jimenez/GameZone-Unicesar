@@ -11,12 +11,21 @@ public class Sale {
     private LocalDateTime dateTime;
     private double totalAmount;
     private List<Product> products;
-
+    
     public Sale(String id, LocalDateTime dateTime, double totalAmount) {
         this.id = id;
         this.dateTime = dateTime;
         this.totalAmount = totalAmount;
     }
+
+    public Sale(String id, LocalDateTime dateTime, double totalAmount, List<Product> products) {
+        this.id = id;
+        this.dateTime = dateTime;
+        this.totalAmount = totalAmount;
+        this.products = products;
+    }
+    
+    
 
     public String getId() { return id; }
     public LocalDateTime getDateTime() { return dateTime; }
