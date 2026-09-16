@@ -1,7 +1,7 @@
 
 package com.gamezone.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * It represents the product warranty associated with the sale of the product.
@@ -15,8 +15,8 @@ public abstract class Warranty {
     private String idWarranty;
     private Product product;
     private Sale sale;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     /**
      *
@@ -25,12 +25,12 @@ public abstract class Warranty {
      * @param sale purchase of the product
      * @param startDate the date the warranty starts
      */
-    public Warranty(String idWarranty, Product product, Sale sale, LocalDateTime startDate, LocalDateTime endDate) {    
+    public Warranty(String idWarranty, Product product, Sale sale, LocalDate startDate) {    
         this.idWarranty = idWarranty;
         this.product = product;
         this.sale = sale;
         this.startDate = startDate;
-        this.endDate = endDate;
+        this.endDate = startDate.plusMonths(this.getDurationInMonths());
     }
     /**
      * Product for which you would like to add a warranty
@@ -89,14 +89,14 @@ public abstract class Warranty {
      * 
      * @return the date the warranty starts
      */
-    public LocalDateTime getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
     /**
      * @return the date the warranty ends
      */
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
     /**
@@ -104,17 +104,40 @@ public abstract class Warranty {
      * @param startDate 
      */
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
     /**
      * 
      * @param endDate 
      */
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
     
+    
+    /**
+     * Checks whether this warranty is still valid on the given date
+     *
+     * @param date the date to check against
+     * @return true if date falls within [startDate, endDate]
+     */
+    public boolean isActive(LocalDate date) {
+        return !date.isBefore(startDate) && !date.isAfter(endDate);
+    }
+    
+    /**
+     * Builds a human-readable warranty certificate.
+     * 
+     * @return  a formatted certificate string with the warranty's details
+     */
+    public String generateWarrantyCertificate() {
+    return "Certificado de " + getWarrantyType() + "\n"
+         + "ID: " + idWarranty + "\n"
+         + "Producto: " + product.getTitle() + "\n"
+         + "Vigencia: " + startDate + " a " + endDate + "\n"
+         + "Costo adicional: $" + getAdditionalCost();
+}
 
     // Each subclass must specify the warranty period for the product (polymorphism)
     public abstract int getDurationInMonths();
