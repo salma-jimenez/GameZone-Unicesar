@@ -24,12 +24,12 @@ import java.util.List;
  * @version 1.0
  */
 public class WarrantyRepository {
-    private static final String filePath = "warranties.csv";
-    private static final String basicType = "BASIC";
-    private static final String extendedType = "EXTENDED";
+    private static final String FILE_PATH = "warranties.csv";
+    private static final String BASIC_TYPE = "BASIC";
+    private static final String EXTENDED_TYPE = "EXTENDED";
     
-    private ProductRepository productRepository;
-    private SaleRepository saleRepository;
+    private final ProductRepository productRepository;
+    private final SaleRepository saleRepository;
     
     /**
      * Creates the repository, injecting the dependencies needed to resolve Product and Sale references when loading warranties back.
@@ -50,9 +50,9 @@ public class WarrantyRepository {
      * @param warranties the warranties to save
      */
      public void saveAll(List<Warranty> warranties){
-         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))){
+         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))){
              for (Warranty warranty : warranties){
-                 String type = (warranty instanceof BasicWarranty) ? basicType : extendedType;
+                 String type = (warranty instanceof BasicWarranty) ? BASIC_TYPE : EXTENDED_TYPE;
                  bw.write(
                     type + ","
                     + warranty.getIdWarranty() + ","
@@ -73,10 +73,11 @@ public class WarrantyRepository {
       * 
       * @return he list of warranties found in the file, or an empty list
       * if the file does not exist
+      * 
       */
     public List<Warranty> loadAll(){
         List<Warranty> warranties = new ArrayList<>();
-         File file = new File(filePath);
+         File file = new File(FILE_PATH);
         if (!file.exists()) {
             return warranties;
         }
@@ -94,7 +95,7 @@ public class WarrantyRepository {
                  LocalDate startDate = LocalDate.parse(data[4]);
                  
                  Warranty warranty;
-                 if (type.equals(basicType)){
+                 if (type.equals(BASIC_TYPE)){
                      warranty = new BasicWarranty(idWarranty, product, sale, startDate);
                  }else{
                      warranty = new ExtendedWarranty(idWarranty, product, sale, startDate);
