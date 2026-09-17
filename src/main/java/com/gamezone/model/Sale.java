@@ -27,7 +27,7 @@ public class Sale {
     }
 
     public void setIdSale(String idVenta) {
-        this.idSale = idVenta;
+        this.idSale= idVenta;
     }
 
     public LocalDateTime getDateTime() {
@@ -65,10 +65,11 @@ public class Sale {
     /**
      * Checks if the sale is eligible for return (within 30 days).
      */
-    void CaculateTotalSales() {
-        for (Product product : listproduct) {
+    void CaculateTotalSales(){
+        for ( Product product : listproduct) {
             totalAmount += product.getPrice();
         }
     }
-
+    
+    
 }
