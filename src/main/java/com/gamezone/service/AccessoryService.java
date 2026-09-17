@@ -1,5 +1,6 @@
+package com.gamezone.service;
 
-package com.gamezone.service;import com.gamezone.model.Accessory;
+import com.gamezone.model.Accessory;
 import com.gamezone.model.Cable;
 import com.gamezone.model.Controller;
 import com.gamezone.model.Memory;
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * Provides the business logic for managing accessories: registering new
  * controllers, cables, and memories, listing and filtering them, and
  * checking compatibility with consoles.
@@ -30,16 +30,26 @@ public class AccessoryService {
     }
 
     /**
+     * Alias method for ConsoleUI compatibility.
+     */
+    public List<Accessory> getAllAccessories() {
+        return listAllAccessories();
+    }
+
+    /**
+     * Deletes an accessory by its unique identifier.
+     *
+     * @param id the accessory's identifier
+     */
+    public void deleteAccessory(String id) {
+        List<Accessory> accessories = accessoryRepository.loadAll();
+        accessories.removeIf(a -> a.getId().equals(id));
+        accessoryRepository.saveAll(accessories);
+    }
+
+    /**
      * Registers a new controller, persisting it along with the existing
      * accessories.
-     *
-     * @param id the controller's unique identifier
-     * @param title the controller's title/name
-     * @param price the controller's price
-     * @param quantityAvailable the initial stock quantity
-     * @param connectionType the controller's connection type (wireless/wired)
-     * @param compatibleConsoles list of console names/models the controller is compatible with
-     * @return the newly created Controller
      */
     public Controller registerController(String id, String title, double price, int quantityAvailable,
                                           String connectionType, List<String> compatibleConsoles) {
@@ -53,15 +63,6 @@ public class AccessoryService {
     /**
      * Registers a new cable, persisting it along with the existing
      * accessories.
-     *
-     * @param id the cable's unique identifier
-     * @param title the cable's title/name
-     * @param price the cable's price
-     * @param quantityAvailable the initial stock quantity
-     * @param lengthInMeters the cable's length in meters
-     * @param connectorType the cable's connector type
-     * @param compatibleConsoles list of console names/models the cable is compatible with
-     * @return the newly created Cable
      */
     public Cable registerCable(String id, String title, double price, int quantityAvailable,
                                 double lengthInMeters, String connectorType, List<String> compatibleConsoles) {
@@ -75,15 +76,6 @@ public class AccessoryService {
     /**
      * Registers a new memory accessory, persisting it along with the
      * existing accessories.
-     *
-     * @param id the memory's unique identifier
-     * @param title the memory's title/name
-     * @param price the memory's price
-     * @param quantityAvailable the initial stock quantity
-     * @param capacityInGB the memory's storage capacity in gigabytes
-     * @param memoryType the memory's type (SD, microSD, internal, etc.)
-     * @param compatibleConsoles list of console names/models the memory is compatible with
-     * @return the newly created Memory
      */
     public Memory registerMemory(String id, String title, double price, int quantityAvailable,
                                   int capacityInGB, String memoryType, List<String> compatibleConsoles) {
@@ -96,8 +88,6 @@ public class AccessoryService {
 
     /**
      * Lists all registered accessories, of any type.
-     *
-     * @return the full list of accessories
      */
     public List<Accessory> listAllAccessories() {
         return accessoryRepository.loadAll();
@@ -105,9 +95,6 @@ public class AccessoryService {
 
     /**
      * Lists all accessories of a given type.
-     *
-     * @param type the type to filter by: "CONTROLLER", "CABLE", or "MEMORY"
-     * @return the accessories matching that type
      */
     public List<Accessory> listAccessoriesByType(String type) {
         List<Accessory> result = new ArrayList<>();
@@ -121,9 +108,6 @@ public class AccessoryService {
 
     /**
      * Finds all accessories compatible with the given console.
-     *
-     * @param consoleId the console's identifier or name to check against
-     * @return the accessories compatible with that console
      */
     public List<Accessory> findAccessoriesCompatibleWith(String consoleId) {
         List<Accessory> result = new ArrayList<>();
@@ -137,9 +121,6 @@ public class AccessoryService {
 
     /**
      * Finds an accessory by its unique identifier.
-     *
-     * @param id the accessory's identifier
-     * @return the matching Accessory, or null if none is found
      */
     public Accessory findById(String id) {
         for (Accessory accessory : accessoryRepository.loadAll()) {
@@ -152,9 +133,6 @@ public class AccessoryService {
 
     /**
      * Updates the stock quantity of the given accessory.
-     *
-     * @param accessoryId the identifier of the accessory to update
-     * @param quantity the new stock quantity to set
      */
     public void updateStock(String accessoryId, int quantity) {
         List<Accessory> accessories = accessoryRepository.loadAll();
@@ -169,10 +147,6 @@ public class AccessoryService {
 
     /**
      * Checks whether the given accessory matches the given type name.
-     *
-     * @param accessory the accessory to check
-     * @param type the type name: "CONTROLLER", "CABLE", or "MEMORY"
-     * @return true if the accessory's concrete class matches the type
      */
     private boolean matchesType(Accessory accessory, String type) {
         if (type.equalsIgnoreCase("CONTROLLER")) {
@@ -184,6 +158,5 @@ public class AccessoryService {
         }
         return false;
     }
-
 }
     
