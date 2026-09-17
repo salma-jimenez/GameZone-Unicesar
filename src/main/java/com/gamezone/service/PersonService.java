@@ -36,7 +36,7 @@ public class PersonService {
      * @return the newly registered customer
      * @throws IllegalArgumentException if a person with the given id already exists
      */
-    public Customer registerCustomer(int id, String name, String phone, String email) {
+    public Customer registerCustomer(String id, String name, String phone, String email) {
         if (idAlreadyExists(id)) {
             throw new IllegalArgumentException("Ya existe una persona registrada con ese id.");
         }
@@ -58,7 +58,7 @@ public class PersonService {
      * @return the newly registered seller
      * @throws IllegalArgumentException if a person with the given id already exists
      */
-    public Seller registerSeller(int id, String name, String phone, int employeeCode, String shift) {
+    public Seller registerSeller(String id, String name, String phone, int employeeCode, String shift) {
         if (idAlreadyExists(id)) {
             throw new IllegalArgumentException("Ya existe una persona registrada con ese id.");
         }
@@ -75,10 +75,10 @@ public class PersonService {
      * @param id the id to check
      * @return true if the id already exists, false otherwise
      */
-    private boolean idAlreadyExists(int id) {
+    private boolean idAlreadyExists(String id) {
         List<Person> people = personRepository.load();
         for (Person p : people) {
-            if (p.getId() == id) {
+            if (p.getId().equals(id)) {
                 return true;
             }
         }

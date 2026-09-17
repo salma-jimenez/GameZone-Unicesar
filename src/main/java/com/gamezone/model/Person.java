@@ -9,7 +9,7 @@ package com.gamezone.model;
  */
 public abstract class Person {
 
-    private int id;
+    private String id;
     private String name;
     private String phone;
 
@@ -22,8 +22,8 @@ public abstract class Person {
      *  @throws IllegalArgumentException if id is not greater than zero,
  *         or if name or phone are null or blank
      */
-    public Person(int id, String name, String phone) {
-        if (id <= 0) {
+    public Person(String id, String name, String phone) {
+        if (id == null) {
             throw new IllegalArgumentException("El id debe ser mayor a cero.");
         }
         if (name == null || name.isBlank()) {
@@ -42,7 +42,7 @@ public abstract class Person {
      *
      * @return the id
      */
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -51,7 +51,7 @@ public abstract class Person {
      *
      * @param id the new id to assign
      */
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
