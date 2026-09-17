@@ -54,7 +54,9 @@ public class ConsoleUI {
 
                         Product product = new Product() {
                             @Override
-                            public String getDescription() {}
+                            public String getDescription() {
+                                return "Producto: " + getTitle() + " | Precio: $" + getPrice();
+                            }
                         };
                         product.setId(JOptionPane.showInputDialog("Ingrese ID del producto:"));
                         product.setTitle(JOptionPane.showInputDialog("Ingrese nombre/título del producto:"));

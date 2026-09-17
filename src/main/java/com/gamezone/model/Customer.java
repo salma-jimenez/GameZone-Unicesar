@@ -23,13 +23,19 @@ public class Customer extends Person{
     * @param phone the client's email address
     * @throws IllegalArgumentException if email is null or does not contain "@"
     */
+     
+     
+    public Customer() {
+        super(null, null, null);
+        
+    }
+
     public Customer(String id, String name, String phone, String email) {
         super(id, name, phone);
-         if (email == null || !email.contains("@")) {
-        throw new IllegalArgumentException("El email debe tener un formato válido.");
-         }
+        if (email == null || !email.contains("@")) {
+            throw new IllegalArgumentException("El email debe tener un formato válido.");
+        }
         this.email = email;
-        
     }
     /**
      * Returns the client's email address.
