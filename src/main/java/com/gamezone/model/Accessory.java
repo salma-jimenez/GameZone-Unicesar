@@ -69,4 +69,5 @@ public abstract class Accessory extends Product{
              + "Cantidad disponible: " + this.getQuantityAvailable() + "\n"
              + "Consolas compatibles: " + consoles;
     }
+
 }

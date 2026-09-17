@@ -19,20 +19,46 @@ import java.util.List;
  */
 public class AccessoryRepository {
 
-    private static String FILE_PATH = "data/accessories.csv";
-    private static String CONTROLLER_TYPE = "CONTROLLER";
-    private static String CABLE_TYPE = "CABLE";
-    private static String MEMORY_TYPE = "MEMORY";
-    private static String CONSOLE_SEPARATOR = ";";
+    private static final String FILE_PATH = "data/accessories.csv";
+    private static final String CONTROLLER_TYPE = "CONTROLLER";
+    private static final String CABLE_TYPE = "CABLE";
+    private static final String MEMORY_TYPE = "MEMORY";
+    private static final String CONSOLE_SEPARATOR = ";";
 
-    /**
-     * Persists the given list of accessories, overwriting the CSV file. Each
-     * row includes a type discriminator so the concrete subclass can be
-     * reconstructed on load.
-     *
-     * @param accessories the accessories to save
-     */
+    // --- MÉTODOS REQUERIDOS POR ACCESSORYSERVICE ---
+
+    public List<Accessory> findAll() {
+        return loadAll();
+    }
+
+    public Accessory findById(String id) {
+        return loadAll().stream()
+                .filter(a -> a.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void save(Accessory accessory) {
+        List<Accessory> accessories = loadAll();
+        accessories.removeIf(a -> a.getId().equals(accessory.getId()));
+        accessories.add(accessory);
+        saveAll(accessories);
+    }
+
+    public void deleteById(String id) {
+        List<Accessory> accessories = loadAll();
+        accessories.removeIf(a -> a.getId().equals(id));
+        saveAll(accessories);
+    }
+
+    // --- PERSISTENCIA EN ARCHIVO CSV ---
+
     public void saveAll(List<Accessory> accessories) {
+        File dataDir = new File("data");
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+        }
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_PATH))) {
             for (Accessory accessory : accessories) {
                 writer.println(buildLine(accessory));
@@ -42,14 +68,6 @@ public class AccessoryRepository {
         }
     }
 
-    /**
-     * Loads all accessories from the CSV file, reconstructing the correct
-     * concrete subclass (Controller, Cable, or Memory) for each row based on
-     * the type discriminator.
-     *
-     * @return the list of accessories found in the file, or an empty list if
-     * the file does not exist
-     */
     public List<Accessory> loadAll() {
         List<Accessory> accessories = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -73,13 +91,6 @@ public class AccessoryRepository {
         return accessories;
     }
 
-    /**
-     * Builds a single CSV line for the given accessory, including its type
-     * discriminator and type-specific fields.
-     *
-     * @param accessory the accessory to serialize
-     * @return the CSV-formatted line
-     */
     private String buildLine(Accessory accessory) {
         String consoles = String.join(CONSOLE_SEPARATOR, accessory.getCompatibleConsoles());
         String common = accessory.getId() + ","
@@ -98,13 +109,6 @@ public class AccessoryRepository {
         }
     }
 
-    /**
-     * Parses a single CSV line back into the correct concrete Accessory
-     * subclass, based on its type discriminator.
-     *
-     * @param line the CSV line to parse
-     * @return the reconstructed Accessory
-     */
     private Accessory parseLine(String line) {
         String[] fields = line.split(",", -1);
         String type = fields[0];
@@ -130,7 +134,5 @@ public class AccessoryRepository {
         } else {
             throw new IllegalArgumentException("Unknown accessory type: " + type);
         }
-
     }
-
 }
