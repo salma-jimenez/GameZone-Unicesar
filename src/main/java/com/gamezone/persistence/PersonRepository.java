@@ -54,19 +54,24 @@ public class PersonRepository {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(";");
-                String type = fields[0];
-                String id = fields[1];
-                String name = fields[2];
-                String phone = fields[3];
+                if (line.trim().isEmpty()) continue;
+                try {
+                    String[] fields = line.split(";");
+                    String type = fields[0];
+                    String id = fields[1];
+                    String name = fields[2];
+                    String phone = fields[3];
 
-                if (type.equals("CUSTOMER")) {
-                    String email = fields[4];
-                    people.add(new Customer(id, name, phone, email));
-                } else if (type.equals("SELLER")) {
-                    int employeeCode = Integer.parseInt(fields[4]);
-                    String shift = fields[5];
-                    people.add(new Seller(id, name, phone, employeeCode, shift));
+                    if (type.equals("CUSTOMER")) {
+                        String email = fields[4];
+                        people.add(new Customer(id, name, phone, email));
+                    } else if (type.equals("SELLER")) {
+                        int employeeCode = Integer.parseInt(fields[4]);
+                        String shift = fields[5];
+                        people.add(new Seller(id, name, phone, employeeCode, shift));
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Línea de persona mal formada, se omite: " + line);
                 }
             }
         } catch (Exception e) {

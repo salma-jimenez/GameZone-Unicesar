@@ -65,7 +65,11 @@ public class PromotionRepository {
                 if (line.isBlank()) {
                     continue;
                 }
-                promotions.add(parseLine(line));
+                try {
+                    promotions.add(parseLine(line));
+                } catch (Exception ex) {
+                    System.out.println("Línea de promoción mal formada, se omite: " + line);
+                }
             }
         } catch (IOException e) {
             System.out.println("Error loading promotions: " + e.getMessage());

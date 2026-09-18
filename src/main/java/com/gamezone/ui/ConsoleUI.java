@@ -94,7 +94,7 @@ public class ConsoleUI {
         boolean addingProducts = true;
         while (addingProducts) {
             String productId = JOptionPane.showInputDialog("Ingrese el ID del producto a vender (o '0' para finalizar):");
-            if (productId == null || productId.equals("0") || productId.trim().isEmpty()) {
+            if (productId.trim().equals("0")  || productId == null || productId.trim().isEmpty()) {
                 addingProducts = false;
                 break;
             }

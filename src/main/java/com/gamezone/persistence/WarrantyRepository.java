@@ -91,20 +91,24 @@ public class WarrantyRepository {
                  if (line.trim().isEmpty()){
                      continue;
                  }
-                 String[] data = line.split(",");
-                 String type = data[0];
-                 String idWarranty = data[1];
-                 Product product = productRepository.findById(data[2]);
-                 Sale sale = saleRepository.findById(data[3]);
-                 LocalDate startDate = LocalDate.parse(data[4]);
-                 
-                 Warranty warranty;
-                 if (type.equals(BASIC_TYPE)){
-                     warranty = new BasicWarranty(idWarranty, product, sale, startDate);
-                 }else{
-                     warranty = new ExtendedWarranty(idWarranty, product, sale, startDate);
+                 try {
+                     String[] data = line.split(",");
+                     String type = data[0];
+                     String idWarranty = data[1];
+                     Product product = productRepository.findById(data[2]);
+                     Sale sale = saleRepository.findById(data[3]);
+                     LocalDate startDate = LocalDate.parse(data[4]);
+
+                     Warranty warranty;
+                     if (type.equals(BASIC_TYPE)){
+                         warranty = new BasicWarranty(idWarranty, product, sale, startDate);
+                     }else{
+                         warranty = new ExtendedWarranty(idWarranty, product, sale, startDate);
+                     }
+                     warranties.add(warranty);
+                 } catch (Exception ex) {
+                     System.out.println("Línea de garantía mal formada, se omite: " + line);
                  }
-                 warranties.add(warranty);
              }
         }catch (IOException e){
             System.out.println("Error loading warranties: " + e.getMessage());

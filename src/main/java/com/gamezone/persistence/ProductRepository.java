@@ -19,7 +19,7 @@ import java.util.List;
  * @version 1.0
  */
 public class ProductRepository {
-    private static final String filePath = "data/products.txt";
+    private static final String filePath = "products.txt";
     
     /**
      * Receives a list of products and writes them to the .txt file, structuring the lines according to the VideoGame or Console subclass.
@@ -58,27 +58,31 @@ public class ProductRepository {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
-                String[] data = line.split(";");
-                String type = data[0];
-                String id     = data[1];
-                String title = data[2];
-                String price  = data[3];
-                String quantityAvailable = data[4];
-                if(type.equals("VIDEOGAME")){
-                    String ageRating = data[5];
-                    String genre = data[6];
-                    String platform = data[7];
-                    VideoGame videoGame = new VideoGame(platform, genre, ageRating, id, title, 
-                            Double.parseDouble(price), Integer.parseInt(quantityAvailable));
-                    products.add(videoGame);
-                }else if (type.equals("CONSOLE")){
-                    String brand = data[5];
-                    String generation = data[6];
-                    String model = data[7];
-                    Console console = new Console(brand, model, generation, id, title, 
-                            Double.parseDouble(price), Integer.parseInt(quantityAvailable));
-                    products.add(console);
-                }                
+                try {
+                    String[] data = line.split(";");
+                    String type = data[0];
+                    String id     = data[1];
+                    String title = data[2];
+                    String price  = data[3];
+                    String quantityAvailable = data[4];
+                    if(type.equals("VIDEOGAME")){
+                        String ageRating = data[5];
+                        String genre = data[6];
+                        String platform = data[7];
+                        VideoGame videoGame = new VideoGame(platform, genre, ageRating, id, title, 
+                                Double.parseDouble(price), Integer.parseInt(quantityAvailable));
+                        products.add(videoGame);
+                    }else if (type.equals("CONSOLE")){
+                        String brand = data[5];
+                        String generation = data[6];
+                        String model = data[7];
+                        Console console = new Console(brand, model, generation, id, title, 
+                                Double.parseDouble(price), Integer.parseInt(quantityAvailable));
+                        products.add(console);
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Línea de producto mal formada, se omite: " + line);
+                }
             }
         } catch (Exception e){
             e.printStackTrace();

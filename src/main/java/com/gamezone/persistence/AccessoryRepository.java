@@ -82,7 +82,11 @@ public class AccessoryRepository {
                 if (line.isBlank()) {
                     continue;
                 }
-                accessories.add(parseLine(line));
+                try {
+                    accessories.add(parseLine(line));
+                } catch (Exception ex) {
+                    System.out.println("Línea de accesorio mal formada, se omite: " + line);
+                }
             }
         } catch (IOException e) {
             System.out.println("Error loading accessories: " + e.getMessage());

@@ -75,7 +75,11 @@ public class ReturnRepository {
                 if (line.isBlank()) {
                     continue;
                 }
-                returns.add(parseLine(line));
+                try {
+                    returns.add(parseLine(line));
+                } catch (Exception ex) {
+                    System.out.println("Línea de devolución mal formada, se omite: " + line);
+                }
             }
         } catch (IOException e) {
             System.out.println("Error loading returns: " + e.getMessage());
