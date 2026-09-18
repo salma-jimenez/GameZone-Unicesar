@@ -3,6 +3,7 @@ package com.gamezone.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Represents a sale transaction in the GameZone system.
@@ -177,5 +178,18 @@ public class Sale {
                 + "Descuento (" + promoName + "): -$" + String.format("%.2f", discountAmount) + "\n"
                 + "Total Final: $" + String.format("%.2f", totalAmount) + "\n"
                 + "========================================";
+    }
+    
+    /**
+     * Checks if the sale is eligible for a return based on the 30-day limit rule.
+     *
+     * @return true if the sale was made within the last 30 calendar days, false otherwise.
+     */
+    public boolean canBeReturned() {
+        if (dateTime == null) {
+            return false;
+        }
+        long daysBetween = ChronoUnit.DAYS.between(dateTime.toLocalDate(), java.time.LocalDate.now());
+        return daysBetween >= 0 && daysBetween <= 30;
     }
 }
