@@ -33,10 +33,20 @@ public abstract class Accessory extends Product{
         return compatibleConsoles;
     }
     
+    /**
+     * Sets the list of compatible console models.
+     * 
+     * @param compatibleConsoles the list of compatible console names to set
+     */
     public void setCompatibleConsoles(List<String> compatibleConsoles){
         this.compatibleConsoles = compatibleConsoles;
     }
     
+    /**
+     * Adds a new compatible console model to the accessory list if valid.
+     * 
+     * @param console the console model name to add
+     */
     public void addCompatibleConsole(String console) {
         if (this.compatibleConsoles == null) {
             this.compatibleConsoles = new ArrayList<>();
@@ -46,6 +56,12 @@ public abstract class Accessory extends Product{
         }
     }
     
+    /**
+     * Checks whether the accessory is compatible with a given console model.
+     * 
+     * @param console the console model name to check
+     * @return true if compatible (case-insensitive), false otherwise
+     */
     public boolean isCompatibleWith(String console) {
         if (compatibleConsoles == null || console == null) {
             return false;
@@ -58,6 +74,13 @@ public abstract class Accessory extends Product{
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * Generates a detailed description of the accessory, including price, stock,
+     * and compatible consoles formatted in Spanish.
+     * 
+     * @return formatted string containing accessory information
+     */
     @Override
     public String getDescription() {
         String consoles = (compatibleConsoles == null || compatibleConsoles.isEmpty()) 
