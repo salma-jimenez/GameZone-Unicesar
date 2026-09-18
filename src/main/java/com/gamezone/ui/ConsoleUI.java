@@ -48,12 +48,12 @@ public class ConsoleUI {
             String optionStr = JOptionPane.showInputDialog(
                 null,
                 "--- Módulo de Ventas y Gestión GameZone ---\n" +
-                "1. Registrar Venta (Taller)\n" +
-                "2. Ver Todas las Ventas (Taller)\n" +
-                "3. Gestión de Accesorios (Requerimiento 1)\n" +
-                "4. Gestión de Promociones (Requerimiento 2)\n" +
-                "5. Gestión de Devoluciones y Balance (Requerimiento 3)\n" +
-                "6. Gestión de Garantías (Requerimiento 4)\n" +
+                "1. Registrar Venta \n" +
+                "2. Ver Todas las Ventas \n" +
+                "3. Gestión de Accesorios \n" +
+                "4. Gestión de Promociones \n" +
+                "5. Gestión de Devoluciones y Balance \n" +
+                "6. Gestión de Garantías \n" +
                 "0. Salir\n\n" +
                 "Ingrese una opción:",
                 "Gestión de Ventas GameZone",
