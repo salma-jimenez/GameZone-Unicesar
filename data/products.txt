@@ -1,0 +1,5 @@
+VIDEOGAME;P001;Zelda Tears of the Kingdom;299.99;10;12+;Aventura;Switch
+VIDEOGAME;P002;God of War Ragnarok;349.99;15;18+;Accion;PS5
+CONSOLE;P003;PlayStation 5;2499.99;5;Sony;9th;Slim
+CONSOLE;P004;Xbox Series X;2399.99;8;Microsoft;9th;Series X
+VIDEOGAME;P005;Halo Infinite;199.99;12;T;Shooter;Xbox Series X

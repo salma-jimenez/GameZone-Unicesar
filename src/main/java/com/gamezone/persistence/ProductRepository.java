@@ -19,7 +19,7 @@ import java.util.List;
  * @version 1.0
  */
 public class ProductRepository {
-    private static final String filePath = "products.txt";
+    private static final String filePath = "data/products.txt";
     
     /**
      * Receives a list of products and writes them to the .txt file, structuring the lines according to the VideoGame or Console subclass.
