@@ -56,4 +56,35 @@ public class ProductService {
         }
         productRepository.save(products);
     }
+    /**
+     * Finds a product by its unique identifier.
+     *
+     * @param productId unique identifier of the product
+     * @return Product if found, null otherwise
+     */
+    public Product getProductById(String productId) {
+        return getAllProducts().stream()
+                .filter(p -> p.getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Restores stock for a given product by adding the specified quantity.
+     *
+     * @param productId unique identifier of the product
+     * @param quantity amount to add back to inventory
+     */
+    public void restoreStock(String productId, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("La cantidad a restaurar debe ser mayor a cero.");
+        }
+        Product product = getProductById(productId);
+        if (product != null) {
+            int newQuantity = product.getQuantityAvailable() + quantity;
+            updateStock(productId, newQuantity);
+        } else {
+            throw new IllegalArgumentException("El producto con ID " + productId + " no existe.");
+        }
+    }
 }
