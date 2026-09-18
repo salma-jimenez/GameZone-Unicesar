@@ -1,8 +1,5 @@
 package com.gamezone.ui;
 
-import com.gamezone.model.BulkPurchaseDiscount;
-import com.gamezone.model.CategoryDiscount;
-import com.gamezone.model.PercentageDiscount;
 import com.gamezone.model.Product;
 import com.gamezone.model.Promotion;
 import com.gamezone.model.Return;
@@ -11,11 +8,13 @@ import com.gamezone.service.AccessoryService;
 import com.gamezone.service.PromotionService;
 import com.gamezone.service.ReturnService;
 import com.gamezone.service.SaleService;
+import com.gamezone.service.WarrantyService;
+
+import javax.swing.JOptionPane;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 /**
  * User Interface component managing user interaction via JOptionPane.
@@ -25,13 +24,18 @@ public class ConsoleUI {
     private final AccessoryService accessoryService;
     private final PromotionService promotionService;
     private final ReturnService returnService;
+    private final WarrantyService warrantyService;
 
-    public ConsoleUI(SaleService saleService, AccessoryService accessoryService, 
-                     PromotionService promotionService, ReturnService returnService) {
+    public ConsoleUI(SaleService saleService, 
+                     AccessoryService accessoryService, 
+                     PromotionService promotionService, 
+                     ReturnService returnService,
+                     WarrantyService warrantyService) {
         this.saleService = saleService;
         this.accessoryService = accessoryService;
         this.promotionService = promotionService;
         this.returnService = returnService;
+        this.warrantyService = warrantyService;
     }
 
     public void start() {
@@ -45,7 +49,7 @@ public class ConsoleUI {
                 "3. Gestión de Accesorios (Requerimiento 1)\n" +
                 "4. Gestión de Promociones (Requerimiento 2)\n" +
                 "5. Gestión de Devoluciones y Balance (Requerimiento 3)\n" +
-                "6. Módulo Requerimiento 4\n" +
+                "6. Gestión de Garantías (Requerimiento 4)\n" +
                 "0. Salir\n\n" +
                 "Ingrese una opción:",
                 "Gestión de Ventas GameZone",
@@ -64,7 +68,7 @@ public class ConsoleUI {
                     case "3" -> showAccessoryMenu();
                     case "4" -> showPromotionMenu();
                     case "5" -> showReturnMenu();
-                    case "6" -> JOptionPane.showMessageDialog(null, "Módulo para Requerimiento 4.");
+                    case "6" -> showWarrantyMenu();
                     default -> JOptionPane.showMessageDialog(null, "Opción no válida.");
                 }
             } catch (Exception e) {
@@ -357,5 +361,93 @@ public class ConsoleUI {
 
         double balance = returnService.generateMonthlyBalance(month, year);
         JOptionPane.showMessageDialog(null, "El balance neto para el período " + month + "/" + year + " es: $" + String.format("%.2f", balance));
+    }
+
+    // --- SUBMENÚ REQUERIMIENTO 4: GESTIÓN DE GARANTÍAS ---
+    private void showWarrantyMenu() {
+        boolean back = false;
+        while (!back) {
+            String optionStr = JOptionPane.showInputDialog(
+                null,
+                "--- GESTIÓN DE GARANTÍAS ---\n" +
+                "1. Consultar Garantía por Producto y Venta\n" +
+                "2. Listar Todas las Garantías\n" +
+                "3. Listar Garantías Vigentes\n" +
+                "4. Listar Garantías Próximas a Vencer\n" +
+                "0. Volver al Menú Principal\n\n" +
+                "Ingrese una opción:",
+                "Módulo de Garantías",
+                JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (optionStr == null || optionStr.equals("0")) {
+                back = true;
+                break;
+            }
+
+            try {
+                switch (optionStr) {
+                    case "1" -> showWarrantyByProductAndSaleUI();
+                    case "2" -> listAllWarrantiesUI();
+                    case "3" -> listActiveWarrantiesUI();
+                    case "4" -> listExpiringWarrantiesUI();
+                    default -> JOptionPane.showMessageDialog(null, "Opción no válida.");
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error de Garantías", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void showWarrantyByProductAndSaleUI() {
+        String saleId = JOptionPane.showInputDialog("Ingrese el ID de la Venta:");
+        if (saleId == null || saleId.trim().isEmpty()) return;
+
+        String productId = JOptionPane.showInputDialog("Ingrese el ID del Producto:");
+        if (productId == null || productId.trim().isEmpty()) return;
+
+        var warranty = warrantyService.findWarrantyByProduct(productId, saleId);
+        if (warranty != null) {
+            JOptionPane.showMessageDialog(null, warranty.generateWarrantyCertificate());
+        } else {
+            JOptionPane.showMessageDialog(null, "No se encontró garantía para el producto y venta indicados.");
+        }
+    }
+
+    private void listAllWarrantiesUI() {
+        var list = warrantyService.listAllWarranties();
+        if (list.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay garantías registradas.");
+            return;
+        }
+        StringBuilder sb = new StringBuilder("--- TODAS LAS GARANTÍAS ---\n\n");
+        list.forEach(w -> sb.append(w.generateWarrantyCertificate()).append("\n------------------\n"));
+        JOptionPane.showMessageDialog(null, sb.toString());
+    }
+
+    private void listActiveWarrantiesUI() {
+        var list = warrantyService.listActiveWarranties();
+        if (list.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay garantías vigentes.");
+            return;
+        }
+        StringBuilder sb = new StringBuilder("--- GARANTÍAS VIGENTES ---\n\n");
+        list.forEach(w -> sb.append(w.generateWarrantyCertificate()).append("\n------------------\n"));
+        JOptionPane.showMessageDialog(null, sb.toString());
+    }
+
+    private void listExpiringWarrantiesUI() {
+        String daysStr = JOptionPane.showInputDialog("Ingrese los días de anticipación para el vencimiento (ej. 30):");
+        if (daysStr == null || daysStr.trim().isEmpty()) return;
+        
+        int days = Integer.parseInt(daysStr);
+        var list = warrantyService.listWarrantiesExpiringSoon(days);
+        if (list.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay garantías próximas a vencer en los siguientes " + days + " días.");
+            return;
+        }
+        StringBuilder sb = new StringBuilder("--- GARANTÍAS PRÓXIMAS A VENCER ---\n\n");
+        list.forEach(w -> sb.append(w.generateWarrantyCertificate()).append("\n------------------\n"));
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 }
