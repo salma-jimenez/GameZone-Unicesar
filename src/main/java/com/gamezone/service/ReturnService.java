@@ -1,0 +1,196 @@
+package com.gamezone.service;
+
+import com.gamezone.model.Product;
+import com.gamezone.model.Return;
+import com.gamezone.model.Sale;
+import com.gamezone.persistence.ReturnRepository;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Handles the business rules around returning products: checking that
+ * a return is even allowed, working out the refund, putting the stock
+ * back, and reporting on returns already on file.
+ *
+ * 
+ * @author Salomejimenez
+ */
+public class ReturnService {
+
+    private ReturnRepository returnRepository;
+    private SaleService saleService;
+    private ProductService productService;
+    private int nextReturnNumber = 1;
+
+    /**
+     * Wires this service to the repository and the two other services
+     * it needs to validate and complete a return.
+     *
+     * @param returnRepository persistence layer for return records
+     * @param saleService used to fetch and validate the original sale
+     * @param productService used to restore stock on returned products
+     */
+    public ReturnService(ReturnRepository returnRepository, SaleService saleService, ProductService productService) {
+        this.returnRepository = returnRepository;
+        this.saleService = saleService;
+        this.productService = productService;
+    }
+
+    /**
+     * Processes a new return: makes sure the sale exists and is still
+     * within the return window, checks that every requested product
+     * actually came from that sale, calculates the refund, restores
+     * stock, and saves the record.
+     *
+     * @param saleId the id of the sale the products were bought in
+     * @param productIds the ids of the specific products being returned
+     *        (repeat an id if more than one unit of it is returned)
+     * @param reason the customer's stated reason for the return
+     * @return the newly created and persisted Return
+     */
+    public Return registerReturn(String saleId, List<String> productIds, String reason) {
+        Sale sale = saleService.getSaleById(saleId);
+
+        // TODO: Sale.canBeReturned() is being added by Desarrollador 1.
+        if (!sale.canBeReturned()) {
+            throw new IllegalArgumentException("La venta ya superó el plazo de 30 días para devoluciones.");
+        }
+
+        List<Product> returnedProducts = matchProductsToSale(sale, productIds);
+
+        String id = "RET" + String.format("%03d", nextReturnNumber++);
+        Return returnRecord = new Return(id, LocalDate.now(), sale, returnedProducts, reason, 0.0);
+        returnRecord.calculateRefundAmount();
+
+        restoreStockForReturnedProducts(returnedProducts);
+
+        List<Return> returns = returnRepository.loadAll();
+        returns.add(returnRecord);
+        returnRepository.saveAll(returns);
+
+        return returnRecord;
+    }
+
+    /**
+     * Returns every return on record, regardless of sale or customer.
+     *
+     * @return the complete history of returns
+     */
+    public List<Return> viewAllReturns() {
+        return returnRepository.loadAll();
+    }
+
+    /**
+     * Filters the return history down to the ones tied to sales made
+     * by a specific customer.
+     *
+     * @param customerId the customer's identifier (matched as text,
+     *        since Customer stores its id as an int)
+     * @return the returns associated with that customer's sales
+     */
+    public List<Return> viewReturnsByCustomer(String customerId) {
+        List<Return> result = new ArrayList<>();
+        for (Return returnRecord : returnRepository.loadAll()) {
+            Sale sale = returnRecord.getOriginalSale();
+            if (sale != null && sale.getCustomer() != null
+                    && String.valueOf(sale.getCustomer().getId()).equals(customerId)) {
+                result.add(returnRecord);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Filters the return history down to the ones tied to a single
+     * specific sale.
+     *
+     * @param saleId the id of the sale to look up returns for
+     * @return the returns associated with that sale
+     */
+    public List<Return> viewReturnsBySale(String saleId) {
+        List<Return> result = new ArrayList<>();
+        for (Return returnRecord : returnRepository.loadAll()) {
+            if (returnRecord.getOriginalSale() != null
+                    && returnRecord.getOriginalSale().getIdSale().equals(saleId)) {
+                result.add(returnRecord);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Adds up every sale and every return that happened in the given
+     * month and year, and returns the difference between them: what
+     * the store actually kept after refunds.
+     *
+     * @param month the month to report on (1-12)
+     * @param year the year to report on
+     * @return total sales minus total returns for that period
+     */
+    public double generateMonthlyBalance(int month, int year) {
+        double totalSales = 0.0;
+        for (Sale sale : saleService.getAllSales()) {
+            if (sale.getDateTime().getMonthValue() == month && sale.getDateTime().getYear() == year) {
+                totalSales += sale.getTotalAmount();
+            }
+        }
+
+        double totalReturns = 0.0;
+        for (Return returnRecord : returnRepository.loadAll()) {
+            if (returnRecord.getReturnDate().getMonthValue() == month && returnRecord.getReturnDate().getYear() == year) {
+                totalReturns += returnRecord.getRefundAmount();
+            }
+        }
+
+        return totalSales - totalReturns;
+    }
+
+    /**
+     * Confirms that every requested product id actually belongs to the
+     * given sale, consuming one matching unit per id so the same
+     * product can't be "found" twice if it was only bought once.
+     *
+     * @param sale the original sale to check against
+     * @param productIds the ids the customer wants to return
+     * @return the actual Product instances that were matched
+     */
+    private List<Product> matchProductsToSale(Sale sale, List<String> productIds) {
+        List<Product> saleProducts = new ArrayList<>(sale.getProduct());
+        List<Product> matched = new ArrayList<>();
+
+        for (String productId : productIds) {
+            Product found = null;
+            for (Product candidate : saleProducts) {
+                if (candidate.getId().equals(productId)) {
+                    found = candidate;
+                    break;
+                }
+            }
+            if (found == null) {
+                throw new IllegalArgumentException("El producto " + productId + " no pertenece a la venta indicada.");
+            }
+            saleProducts.remove(found);
+            matched.add(found);
+        }
+
+        return matched;
+    }
+
+    /**
+     * Puts the stock back for each returned product, grouping repeated
+     * ids so a product returned twice only needs one call with the
+     * right quantity.
+     *
+     * @param returnedProducts the products being returned
+     */
+    private void restoreStockForReturnedProducts(List<Product> returnedProducts) {
+        for (Product product : returnedProducts) {
+            // TODO: ProductService.restoreStock(...) is being added by the Líder Técnico.
+            productService.restoreStock(product.getId(), 1);
+        }
+    }
+
+}
