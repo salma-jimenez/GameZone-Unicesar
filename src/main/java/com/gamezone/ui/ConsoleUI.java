@@ -1,6 +1,7 @@
 package com.gamezone.ui;
 
 import com.gamezone.model.Product;
+import com.gamezone.service.ProductService;
 import com.gamezone.model.Promotion;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
@@ -25,17 +26,20 @@ public class ConsoleUI {
     private final PromotionService promotionService;
     private final ReturnService returnService;
     private final WarrantyService warrantyService;
+    private final ProductService productService;
 
     public ConsoleUI(SaleService saleService, 
                      AccessoryService accessoryService, 
                      PromotionService promotionService, 
                      ReturnService returnService,
-                     WarrantyService warrantyService) {
+                     WarrantyService warrantyService,
+                     ProductService productService) {
         this.saleService = saleService;
         this.accessoryService = accessoryService;
         this.promotionService = promotionService;
         this.returnService = returnService;
         this.warrantyService = warrantyService;
+        this.productService = productService;
     }
 
     public void start() {
@@ -82,13 +86,49 @@ public class ConsoleUI {
         String id = JOptionPane.showInputDialog("Ingrese ID de la venta:");
         if (id == null || id.trim().isEmpty()) return;
 
-        String amountStr = JOptionPane.showInputDialog("Ingrese el monto total:");
-        if (amountStr == null) return;
-        double amount = Double.parseDouble(amountStr);
+        // Lista para los productos de la venta y lista para IDs con garantía extendida
+        List<Product> products = new ArrayList<>();
+        List<String> extendedWarrantyProductIds = new ArrayList<>();
 
-        List<Product> emptyList = new ArrayList<>();
-        Sale sale = new Sale(id, LocalDateTime.now(), amount, null, emptyList);
-        saleService.registerSale(sale);
+        // Preguntar al usuario sobre los productos a vender
+        boolean addingProducts = true;
+        while (addingProducts) {
+            String productId = JOptionPane.showInputDialog("Ingrese el ID del producto a vender (o '0' para finalizar):");
+            if (productId == null || productId.equals("0") || productId.trim().isEmpty()) {
+                addingProducts = false;
+                break;
+            }
+
+            // Buscar el producto en el catálogo
+            Product product = productService.getProductById(productId);
+            if (product != null) {
+                products.add(product);
+
+                // Si es una consola, preguntar si requiere garantía extendida
+                if (product instanceof com.gamezone.model.Console) {
+                    int confirm = JOptionPane.showConfirmDialog(
+                        null,
+                        "¿Desea agregar Garantía Extendida de 12 meses extra para la consola: " + product.getTitle() + "?",
+                        "Garantía Extendida",
+                        JOptionPane.YES_NO_OPTION
+                    );
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        extendedWarrantyProductIds.add(product.getId());
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Producto no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        if (products.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No se agregaron productos a la venta.");
+            return;
+        }
+
+        // Crear objeto Venta e invocar al servicio con las garantías extendidas
+        Sale sale = new Sale(id, LocalDateTime.now(), 0.0, null, products);
+        saleService.registerSale(sale, extendedWarrantyProductIds);
         
         JOptionPane.showMessageDialog(null, sale.generateReceipt());
     }
