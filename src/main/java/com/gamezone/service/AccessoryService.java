@@ -144,6 +144,25 @@ public class AccessoryService {
         }
         accessoryRepository.saveAll(accessories);
     }
+        /**
+     * Restores stock for the given accessory, adding the specified
+     * quantity back to what's currently available — the counterpart
+     * to ProductService.restoreStock, used when an accessory is
+     * returned instead of a regular product.
+     *
+     * @param accessoryId the identifier of the accessory to restock
+     * @param quantity the quantity to add back to current stock
+     */
+    public void restoreStock(String accessoryId, int quantity) {
+        List<Accessory> accessories = accessoryRepository.loadAll();
+        for (Accessory accessory : accessories) {
+            if (accessory.getId().equals(accessoryId)) {
+                accessory.setQuantityAvailable(accessory.getQuantityAvailable() + quantity);
+                break;
+            }
+        }
+        accessoryRepository.saveAll(accessories);
+    }
 
     /**
      * Checks whether the given accessory matches the given type name.
