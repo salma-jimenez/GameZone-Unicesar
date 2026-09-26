@@ -145,3 +145,27 @@
 - **Response:** Provided the semicolon-separated structure (`ID;Name;StartDate;EndDate;Percentage;TargetCategory`) and advised editing the file directly in NetBeans/VS Code instead of Excel to prevent delimiter and date parsing bugs.
 - **Decision:** Added `P04;Descuento Accesorios Gamer;2026-09-21;2026-09-26;15.0;ACCESSORY` directly via NetBeans text editor, ensuring dates covered the project evaluation week (`2026-09-21` to `2026-09-26`).
 - **Related Commit:** `feat: add active accessory category promotion to promotions.csv`
+
+---
+
+## Entry 15
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 4 | `fix/return-discounted-refund`
+- **Objective:** Modify `Return.calculateRefundAmount()` so refunds reflect original sale promotional discounts instead of full list prices.
+- **Query:** "What is the correct mathematical structure to calculate proportional refunds when an original sale includes promotional discounts?"
+- **Response:** Explained the proportional reduction formula based on the ratio between the original sale's gross subtotal and net total paid.
+- **Decision:** Designed and implemented the iteration logic in `Return.calculateRefundAmount()`, calculating the total sale discount, deriving the effective reduction ratio, and safely applying it per item with null-check validations.
+- **Related Commit:** `fix: calculate proportional refund amount considering sale discounts`
+
+---
+
+## Entry 16
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 4 | `fix/return-discounted-refund`
+- **Objective:** Update `Return.generateReturnReceipt()` to display itemized list prices, applied discounts, and net refund values.
+- **Query:** "What is a clear way to structure an itemized text breakdown in a receipt to show original prices, discounts, and final net refund amounts?"
+- **Response:** Recommended an itemized single-line layout per product that explicitly presents List Price, Discount Amount, and Net Refund.
+- **Decision:** Updated `Return.generateReturnReceipt()` using `StringBuilder` to calculate itemized line values and format the breakdown in Spanish ("Precio lista", "Desc.", "Neto") with strict two-decimal precision using `String.format("%.2f", ...)`.
+- **Related Commit:** `fix: calculate proportional refund amount considering sale discounts`
