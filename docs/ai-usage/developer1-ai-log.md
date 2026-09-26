@@ -97,3 +97,51 @@
 - **Prompt:** "What are the structural differences in Java handling between custom .txt parsing and .csv files?"
 - **AI Output:** Confirmed that delimited `.csv` files share identical `BufferedReader` and `split()` parsing logic as standard `.txt` files.
 - **Developer Adaptation:** Verified that existing persistence mechanics in `ProductRepository` meet course requirements for text-based data storage.
+
+---
+
+## Entry 11
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Modify `CategoryDiscount.calculateDiscount` to support `ACCESSORY` items alongside videogames and consoles.
+- **Query:** "What are the specific requirements and implementation steps for updating CategoryDiscount.java under Adjustment A1?"  
+- **Response:** Recommended adding an `else if` branch checking `("ACCESSORY".equalsIgnoreCase(targetCategory) && product instanceof Accessory)` to accumulate matching item prices into `categoryTotal`.
+- **Decision:** Adopted the `instanceof Accessory` approach. I noticed the provided `else if` block was missing the `categoryTotal += product.getPrice();` statement, so I added the summation manually and updated JavaDoc annotations to include `"ACCESSORY"`.
+- **Related Commit:** `feat: add ACCESSORY support to CategoryDiscount calculation`
+
+---
+
+## Entry 12
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Validate `targetCategory` in `PromotionService.registerCategoryDiscount` to allow only valid categories.
+- **Query:** "How can I validate that `targetCategory` in `registerCategoryDiscount` only accepts `VIDEOGAME`, `CONSOLE`, or `ACCESSORY` and throws an `IllegalArgumentException`?"
+- **Response:** Provided validation logic checking that `targetCategory` is non-null and matches one of the three allowed category values, throwing an `IllegalArgumentException` if invalid.
+- **Decision:** Implemented the strict conditional check in `PromotionService`. I customized the exception message to Spanish ("Error, la categoría objetivo debe ser VIDEOGAME, CONSOLE o ACCESSORY") to meet project UI standards and updated JavaDoc parameters.
+- **Related Commit:** `feat: add category validation to registerCategoryDiscount`
+
+---
+
+## Entry 13
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Determine if `ConsoleUI.java` needed adjustments to allow users to register category discounts for accessories.
+- **Query:** "Where in `ConsoleUI.java` should I add the menu prompt option for accessory category discounts?"
+- **Response:** Analyzed `ConsoleUI.java` and pointed out that `registerCategoryDiscount()` already contained `(VIDEOGAME/CONSOLE/ACCESSORY)` in its `JOptionPane` dialog prompt.
+- **Decision:** Confirmed no code modifications were required in the UI layer, as the existing dialog already prompts for accessories and delegates validation directly to the updated service method.
+- **Related Commit:** N/A (UI verification)
+
+---
+
+## Entry 14
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Add an active accessory category promotion in `data/promotions.csv` for integration testing.
+- **Query:** "What is the correct format and date range to add an active accessory category discount entry in promotions.csv?"
+- **Response:** Provided the semicolon-separated structure (`ID;Name;StartDate;EndDate;Percentage;TargetCategory`) and advised editing the file directly in NetBeans/VS Code instead of Excel to prevent delimiter and date parsing bugs.
+- **Decision:** Added `P04;Descuento Accesorios Gamer;2026-09-21;2026-09-26;15.0;ACCESSORY` directly via NetBeans text editor, ensuring dates covered the project evaluation week (`2026-09-21` to `2026-09-26`).
+- **Related Commit:** `feat: add active accessory category promotion to promotions.csv`
