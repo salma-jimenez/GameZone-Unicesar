@@ -485,3 +485,4 @@ classDiagram
     ConsoleUI --> ReturnService : uses
     ConsoleUI --> WarrantyService : uses
     ConsoleUI --> PromotionService : uses
+>>>>>>> e50949d68eaaf9783d5f1c9464350ac02de72dae
