@@ -14,8 +14,8 @@ CategoryDiscount was updated to admit "ACCESSORY" as a target category and corre
 identify Accessory instances in calculateDiscount, while PromotionService.registerCategoryDiscount 
 was modified to validate that the selected category belongs to one of the three allowed types. 
 Additionally, ConsoleMenu was updated to include the accessory option when registering 
-a category promotion, and a valid accessory category promotion was added to data/promotions.csv f
-or the working week.
+a category promotion, and a valid accessory category promotion was added to data/promotions.csv 
+for the working week.
 
 A2 - Circular Dependency in the Warranty Module
 Implementing Requirement 4 introduced a circular dependency cycle (SaleService to 
