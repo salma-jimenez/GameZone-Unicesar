@@ -119,7 +119,21 @@ direction TB
         class WarrantyRepository {
 	        -String filePath
 	        +saveAll(List~Warranty~ warranties) void
-	        +loadAll() List~Warranty~
+	        +loadAll() List~WarrantyRecord~
+        }
+
+        class WarrantyRecord {
+	        -String id
+	        -String productId
+	        -String saleId
+	        -LocalDate startDate
+	        -LocalDate endDate
+	        -String warrantyType
+	        -int durationInMonths
+	        -double additionalCost
+	        +getId() String
+	        +getProductId() String
+	        +getSaleId() String
         }
 	}
 
@@ -141,6 +155,8 @@ direction TB
 
         class WarrantyService {
 	        -WarrantyRepository warrantyRepository
+	        -SalePersistence salePersistence
+	        -ProductService productService
 	        +assignBasicWarranty(Product product, Sale sale, LocalDate startDate) BasicWarranty
 	        +assignExtendedWarranty(Product product, Sale sale, LocalDate startDate) ExtendedWarranty
 	        +findWarrantyByProduct(String productId, String saleId) Warranty
@@ -198,17 +214,19 @@ direction TB
     PersonPersistence ..> Person
     SalePersistence ..> Sale
     WarrantyRepository ..> Warranty
+    WarrantyRepository ..> WarrantyRecord
 
     PersonService ..> PersonPersistence
     ProductService ..> ProductPersistence
-    WarrantyRepository ..> WarrantyRepository
-    
+
     SaleService ..> SalePersistence
     SaleService ..> ProductService
     SaleService ..> PersonService
     SaleService ..> WarrantyService
 
     WarrantyService ..> WarrantyRepository
+    WarrantyService ..> SalePersistence
+    WarrantyService ..> ProductService
     WarrantyService ..> Warranty
 
     ProductService ..> Product
@@ -221,3 +239,4 @@ direction TB
     ConsoleUI ..> WarrantyService
     Main ..> ConsoleUI
 ```
+ 

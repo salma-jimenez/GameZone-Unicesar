@@ -60,7 +60,7 @@ public class CategoryDiscount extends Promotion{
     /**
      * Sets the target category for the discount.
      * 
-     * @param targetCategory the new target category ("VIDEOGAME" or "CONSOLE")
+     * @param targetCategory the new target category ("VIDEOGAME", "CONSOLE", or "ACCESSORY")
      */
     public void setTargetCategory(String targetCategory) {
         this.targetCategory = targetCategory;
@@ -86,6 +86,8 @@ public class CategoryDiscount extends Promotion{
             if ("VIDEOGAME".equalsIgnoreCase(targetCategory) && product instanceof VideoGame) {
                 categoryTotal += product.getPrice();
             } else if ("CONSOLE".equalsIgnoreCase(targetCategory) && product instanceof Console) {
+                categoryTotal += product.getPrice();
+            } else if ("ACCESSORY".equalsIgnoreCase(targetCategory) && product instanceof Accessory){
                 categoryTotal += product.getPrice();
             }
         }
