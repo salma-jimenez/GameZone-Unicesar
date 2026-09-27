@@ -105,35 +105,21 @@ public class Return {
     }
     
     /**
-     * Calculates the total refund amount considering any proportional discounts
-     * applied during the original sale transaction.
+     * Sums the prices of all returned products, assigns the result to refundAmount,
+     * and returns the calculated value.
      * 
      * @return total refund amount in pesos
      */
     public double calculateRefundAmount() {
-        double totalRefund = 0.0;
-        if (returnedProducts != null && !returnedProducts.isEmpty()) {
-            double discountFactor = 1.0;
-            if (originalSale != null && originalSale.getProducts() != null && !originalSale.getProducts().isEmpty()) {
-                double saleSubtotal = 0.0;
-                for (Product p : originalSale.getProducts()) {
-                    if (p != null) {
-                        saleSubtotal += p.getPrice();
-                    }
-                }
-                double saleTotal = originalSale.getTotalAmount();
-                double totalDiscount = saleSubtotal - saleTotal;
-                if (saleSubtotal > 0 && totalDiscount > 0) {
-                    discountFactor = 1.0 - (totalDiscount / saleSubtotal);
-                }
-            }
+        double total = 0.0;
+        if (returnedProducts != null) {
             for (Product product : returnedProducts) {
                 if (product != null) {
-                    totalRefund += product.getPrice() * discountFactor;
+                    total += product.getPrice();
                 }
             }
         }
-        this.refundAmount = totalRefund;
+        this.refundAmount = total;
         return this.refundAmount;
     }
 
@@ -168,30 +154,10 @@ public class Return {
         sb.append("----------------------------------------\n");
         sb.append("Productos Devueltos:\n");
         
-        double discountFactor = 1.0;
-        if (originalSale != null && originalSale.getProducts() != null && !originalSale.getProducts().isEmpty()) {
-            double saleSubtotal = 0.0;
-            for (Product p : originalSale.getProducts()) {
-                if (p != null) saleSubtotal += p.getPrice();
-            }
-            double totalDiscount = saleSubtotal - originalSale.getTotalAmount();
-            if (saleSubtotal > 0 && totalDiscount > 0) {
-                discountFactor = 1.0 - (totalDiscount / saleSubtotal);
-            }
-        }
-        
         if (returnedProducts != null && !returnedProducts.isEmpty()) {
             for (Product product : returnedProducts) {
-                if (product != null) {
-                    double listPrice = product.getPrice();
-                    double netRefund = listPrice * discountFactor;
-                    double itemDiscount = listPrice - netRefund;
-
-                    sb.append(" - ").append(product.getTitle()).append("\n")
-                      .append("   Precio lista: $").append(String.format("%.2f", listPrice))
-                      .append(" | Desc.: $").append(String.format("%.2f", itemDiscount))
-                      .append(" | Neto: $").append(String.format("%.2f", netRefund)).append("\n");
-                }
+                sb.append(" - ").append(product.getTitle())
+                  .append(" ($").append(String.format("%.2f", product.getPrice())).append(")\n");
             }
         } else {
             sb.append(" (Ninguno)\n");
