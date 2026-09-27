@@ -1,4 +1,5 @@
 # 🏛️ GameZone-Unicesar - Architectural Layers Diagram
+
 This document presents the unified class diagram for **GameZone-Unicesar**, structured across its 4 architectural layers: **Model**, **Persistence**, **Service**, and **User Interface (UI)**.
 
 ## Unified Class Diagram (Mermaid)
