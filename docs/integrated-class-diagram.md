@@ -1,4 +1,3 @@
-## class-diagram 
 classDiagram
     direction TB
 

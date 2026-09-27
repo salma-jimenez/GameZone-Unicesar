@@ -188,35 +188,4 @@ public class WarrantyService {
         }
         return null;
     }
-    
-      /**
-     * Cancels every warranty tied to the given product within the
-     * given sale — used when a console is returned, since it can no
-     * longer keep an active warranty once it's back with the store.
-     * A basic warranty refunds nothing (it was free to begin with);
-     * an extended warranty refunds its additional cost.
-     *
-     * @param productId the id of the product whose warranties should be canceled
-     * @param saleId the id of the sale the warranties were issued under
-     * @return the total refundable amount from the canceled warranties
-     */
-    public double cancelWarranties(String productId, String saleId) {
-        List<Warranty> allWarranties = resolveAll();
-        List<Warranty> remaining = new ArrayList<>();
-        double refundableAmount = 0.0;
-
-        for (Warranty warranty : allWarranties) {
-            boolean matchesProductAndSale = warranty.getProduct().getId().equalsIgnoreCase(productId)
-                    && warranty.getSale().getId().equalsIgnoreCase(saleId);
-
-            if (matchesProductAndSale) {
-                refundableAmount += warranty.getAdditionalCost();
-            } else {
-                remaining.add(warranty);
-            }
-        }
-
-        warrantyRepository.saveAll(remaining);
-        return refundableAmount;
-    }
 }

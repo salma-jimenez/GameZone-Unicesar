@@ -1,3 +1,4 @@
+
 package com.gamezone.model;
 
 import java.time.LocalDate;
@@ -18,7 +19,6 @@ public class Return {
     private List<Product> returnedProducts;
     private String reason;
     private double refundAmount;
-    private double warrantyRefundAmount;
 
     /**
      * Constructs a new Return instance with full transaction details.
@@ -36,7 +36,6 @@ public class Return {
         this.returnedProducts = returnedProducts;
         this.reason = reason;
         this.refundAmount = refundAmount;
-        this.warrantyRefundAmount = 0.0;
     }
     
     /**
@@ -92,17 +91,6 @@ public class Return {
     public double getRefundAmount() {
         return refundAmount;
     }
-
-    /**
-     * Gets the portion of the refund that came specifically from
-     * canceling warranties on returned consoles, as opposed to the
-     * portion that came from the products themselves.
-     * 
-     * @return the warranty-related refund amount in pesos
-     */
-    public double getWarrantyRefundAmount() {
-        return warrantyRefundAmount;
-    }
     
     /**
      * Calculates the total refund amount considering any proportional discounts
@@ -135,20 +123,6 @@ public class Return {
         }
         this.refundAmount = totalRefund;
         return this.refundAmount;
-    }
-
-    /**
-     * Adds a warranty cancellation refund (from returned consoles) on
-     * top of whatever product refund was already calculated. Unlike
-     * calculateRefundAmount, this does not recompute anything from
-     * scratch — it's meant to be called once, after the product refund
-     * is already settled.
-     * 
-     * @param amount the refundable amount from canceled warranties
-     */
-    public void addWarrantyRefund(double amount) {
-        this.warrantyRefundAmount = amount;
-        this.refundAmount += amount;
     }
     
     /**
@@ -195,12 +169,6 @@ public class Return {
             }
         } else {
             sb.append(" (Ninguno)\n");
-        }
-
-        if (warrantyRefundAmount > 0) {
-            sb.append("----------------------------------------\n");
-            sb.append("Reembolso por garantía cancelada: $")
-              .append(String.format("%.2f", warrantyRefundAmount)).append("\n");
         }
         
         sb.append("----------------------------------------\n");
