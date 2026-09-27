@@ -40,7 +40,7 @@ public class Main {
 
         // ReturnRepository requiere SaleService, ProductService y AccessoryService:
         ReturnRepository returnRepository = new ReturnRepository(saleService, productService, accessoryService);
-        ReturnService returnService = new ReturnService(returnRepository, saleService, productService, accessoryService);
+        ReturnService returnService = new ReturnService(returnRepository, saleService, productService, accessoryService, warrantyService);
 
         // 3. Instanciar la Capa de Interfaz de Usuario (UI)
         ConsoleUI consoleUI = new ConsoleUI(
