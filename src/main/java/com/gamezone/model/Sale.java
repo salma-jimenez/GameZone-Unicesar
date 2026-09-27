@@ -10,7 +10,6 @@ import java.time.temporal.ChronoUnit;
  */
 public class Sale {
 
-
     private String idSale;
     private LocalDateTime dateTime;
     private double totalAmount;
@@ -18,9 +17,10 @@ public class Sale {
     private String appliedPromotionName;
     private double discountAmount;
     private Customer customer;
+    private double extraWarrantyCost;
 
     /**
-
+     *
      * Default constructor.
      */
     public Sale() {
@@ -60,6 +60,8 @@ public class Sale {
         this(idSale, dateTime, totalAmount, products);
         this.customer = customer;
     }
+    
+    //getter and setter
 
     public String getIdSale() {
         return idSale;
@@ -76,7 +78,6 @@ public class Sale {
     public LocalDateTime getDateTime() {
         return dateTime;
     }
-
 
     public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
@@ -146,6 +147,16 @@ public class Sale {
         this.customer = customer;
     }
 
+    public double getExtraWarrantyCost() {
+        return extraWarrantyCost;
+    }
+
+    public void setExtraWarrantyCost(double extraWarrantyCost) {
+        this.extraWarrantyCost = extraWarrantyCost;
+    }
+    
+    
+
     /**
      * Calculates the subtotal of the sale based on items.
      *
@@ -171,22 +182,25 @@ public class Sale {
                 : "Ninguna";
 
         return """
-               ========================================
-                           RECIBO DE VENTA             
-               ========================================
-               ID Venta: """ + idSale + "\n"
+            ========================================
+                        RECIBO DE VENTA             
+            ========================================
+            ID Venta: """ + idSale + "\n"
                 + "Fecha: " + dateTime + "\n"
                 + "----------------------------------------\n"
                 + "Subtotal: $" + String.format("%.2f", subtotal) + "\n"
                 + "Descuento (" + promoName + "): -$" + String.format("%.2f", discountAmount) + "\n"
+                + "Garantías Extendidas: +$" + String.format("%.2f", extraWarrantyCost) + "\n"
                 + "Total Final: $" + String.format("%.2f", totalAmount) + "\n"
                 + "========================================";
     }
-    
+
     /**
-     * Checks if the sale is eligible for a return based on the 30-day limit rule.
+     * Checks if the sale is eligible for a return based on the 30-day limit
+     * rule.
      *
-     * @return true if the sale was made within the last 30 calendar days, false otherwise.
+     * @return true if the sale was made within the last 30 calendar days, false
+     * otherwise.
      */
     public boolean canBeReturned() {
         if (dateTime == null) {
