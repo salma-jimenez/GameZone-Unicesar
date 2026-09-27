@@ -97,3 +97,75 @@
 - **Prompt:** "What are the structural differences in Java handling between custom .txt parsing and .csv files?"
 - **AI Output:** Confirmed that delimited `.csv` files share identical `BufferedReader` and `split()` parsing logic as standard `.txt` files.
 - **Developer Adaptation:** Verified that existing persistence mechanics in `ProductRepository` meet course requirements for text-based data storage.
+
+---
+
+## Entry 11
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Modify `CategoryDiscount.calculateDiscount` to support `ACCESSORY` items alongside videogames and consoles.
+- **Query:** "What are the specific requirements and implementation steps for updating CategoryDiscount.java under Adjustment A1?"  
+- **Response:** Recommended adding an `else if` branch checking `("ACCESSORY".equalsIgnoreCase(targetCategory) && product instanceof Accessory)` to accumulate matching item prices into `categoryTotal`.
+- **Decision:** Adopted the `instanceof Accessory` approach. I noticed the provided `else if` block was missing the `categoryTotal += product.getPrice();` statement, so I added the summation manually and updated JavaDoc annotations to include `"ACCESSORY"`.
+- **Related Commit:** `feat: add ACCESSORY support to CategoryDiscount calculation`
+
+---
+
+## Entry 12
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Validate `targetCategory` in `PromotionService.registerCategoryDiscount` to allow only valid categories.
+- **Query:** "How can I validate that `targetCategory` in `registerCategoryDiscount` only accepts `VIDEOGAME`, `CONSOLE`, or `ACCESSORY` and throws an `IllegalArgumentException`?"
+- **Response:** Provided validation logic checking that `targetCategory` is non-null and matches one of the three allowed category values, throwing an `IllegalArgumentException` if invalid.
+- **Decision:** Implemented the strict conditional check in `PromotionService`. I customized the exception message to Spanish ("Error, la categoría objetivo debe ser VIDEOGAME, CONSOLE o ACCESSORY") to meet project UI standards and updated JavaDoc parameters.
+- **Related Commit:** `feat: add category validation to registerCategoryDiscount`
+
+---
+
+## Entry 13
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Determine if `ConsoleUI.java` needed adjustments to allow users to register category discounts for accessories.
+- **Query:** "Where in `ConsoleUI.java` should I add the menu prompt option for accessory category discounts?"
+- **Response:** Analyzed `ConsoleUI.java` and pointed out that `registerCategoryDiscount()` already contained `(VIDEOGAME/CONSOLE/ACCESSORY)` in its `JOptionPane` dialog prompt.
+- **Decision:** Confirmed no code modifications were required in the UI layer, as the existing dialog already prompts for accessories and delegates validation directly to the updated service method.
+- **Related Commit:** N/A (UI verification)
+
+---
+
+## Entry 14
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 2 | `feature/accessory-category-discount`
+- **Objective:** Add an active accessory category promotion in `data/promotions.csv` for integration testing.
+- **Query:** "What is the correct format and date range to add an active accessory category discount entry in promotions.csv?"
+- **Response:** Provided the semicolon-separated structure (`ID;Name;StartDate;EndDate;Percentage;TargetCategory`) and advised editing the file directly in NetBeans/VS Code instead of Excel to prevent delimiter and date parsing bugs.
+- **Decision:** Added `P04;Descuento Accesorios Gamer;2026-09-21;2026-09-26;15.0;ACCESSORY` directly via NetBeans text editor, ensuring dates covered the project evaluation week (`2026-09-21` to `2026-09-26`).
+- **Related Commit:** `feat: add active accessory category promotion to promotions.csv`
+
+---
+
+## Entry 15
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 4 | `fix/return-discounted-refund`
+- **Objective:** Modify `Return.calculateRefundAmount()` so refunds reflect original sale promotional discounts instead of full list prices.
+- **Query:** "What is the correct mathematical structure to calculate proportional refunds when an original sale includes promotional discounts?"
+- **Response:** Explained the proportional reduction formula based on the ratio between the original sale's gross subtotal and net total paid.
+- **Decision:** Designed and implemented the iteration logic in `Return.calculateRefundAmount()`, calculating the total sale discount, deriving the effective reduction ratio, and safely applying it per item with null-check validations.
+- **Related Commit:** `fix: calculate proportional refund amount considering sale discounts`
+
+---
+
+## Entry 16
+- **Date:** 2026-09-26
+- **Tool:** Gemini
+- **Phase and Branch:** Phase 4 | `fix/return-discounted-refund`
+- **Objective:** Update `Return.generateReturnReceipt()` to display itemized list prices, applied discounts, and net refund values.
+- **Query:** "What is a clear way to structure an itemized text breakdown in a receipt to show original prices, discounts, and final net refund amounts?"
+- **Response:** Recommended an itemized single-line layout per product that explicitly presents List Price, Discount Amount, and Net Refund.
+- **Decision:** Updated `Return.generateReturnReceipt()` using `StringBuilder` to calculate itemized line values and format the breakdown in Spanish ("Precio lista", "Desc.", "Neto") with strict two-decimal precision using `String.format("%.2f", ...)`.
+- **Related Commit:** `fix: calculate proportional refund amount considering sale discounts`

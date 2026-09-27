@@ -1,9 +1,3 @@
-# 🏛️ GameZone-Unicesar - Architectural Layers Diagram
-This document presents the unified class diagram for **GameZone-Unicesar**, structured across its 4 architectural layers: **Model**, **Persistence**, **Service**, and **User Interface (UI)**.
-
-## Unified Class Diagram (Mermaid)
-
-```mermaid
 classDiagram
     direction TB
 
@@ -432,7 +426,7 @@ classDiagram
             -ReturnService returnService
             -WarrantyService warrantyService
             -PromotionService promotionService
-            +ConsoleUI(...)
+            +ConsoleUI(Scanner scanner, ProductService productService, AccessoryService accessoryService, PersonService personService, SaleService saleService, ReturnService returnService, WarrantyService warrantyService, PromotionService promotionService)
             +showMainMenu()
             +handleProductMenu()
             +handleSaleMenu()

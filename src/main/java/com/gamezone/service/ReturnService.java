@@ -1,19 +1,21 @@
 package com.gamezone.service;
 
+import com.gamezone.model.Accessory;
+import com.gamezone.model.Console;
 import com.gamezone.model.Product;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
 import com.gamezone.persistence.ReturnRepository;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Handles the business rules around returning products: checking that
  * a return is even allowed, working out the refund, putting the stock
- * back, and reporting on returns already on file.
+ * back, canceling console warranties, and reporting on returns already
+ * on file.
  *
  * 
  * @author Salomejimenez
@@ -23,27 +25,36 @@ public class ReturnService {
     private ReturnRepository returnRepository;
     private SaleService saleService;
     private ProductService productService;
+    private AccessoryService accessoryService;
+    private WarrantyService warrantyService;
     private int nextReturnNumber = 1;
 
     /**
-     * Wires this service to the repository and the two other services
+     * Wires this service to the repository and the other services
      * it needs to validate and complete a return.
      *
      * @param returnRepository persistence layer for return records
      * @param saleService used to fetch and validate the original sale
      * @param productService used to restore stock on returned products
+     * @param accessoryService used to restore stock on returned accessories
+     * @param warrantyService used to cancel warranties on returned consoles
      */
-    public ReturnService(ReturnRepository returnRepository, SaleService saleService, ProductService productService) {
+    public ReturnService(ReturnRepository returnRepository, SaleService saleService,
+                          ProductService productService, AccessoryService accessoryService,
+                          WarrantyService warrantyService) {
         this.returnRepository = returnRepository;
         this.saleService = saleService;
         this.productService = productService;
+        this.accessoryService = accessoryService;
+        this.warrantyService = warrantyService;
     }
 
     /**
      * Processes a new return: makes sure the sale exists and is still
      * within the return window, checks that every requested product
-     * actually came from that sale, calculates the refund, restores
-     * stock, and saves the record.
+     * actually came from that sale, calculates the refund, cancels
+     * warranties on any returned console, restores stock, and saves
+     * the record.
      *
      * @param saleId the id of the sale the products were bought in
      * @param productIds the ids of the specific products being returned
@@ -51,10 +62,9 @@ public class ReturnService {
      * @param reason the customer's stated reason for the return
      * @return the newly created and persisted Return
      */
-    public Return registerReturn(String saleId, List<String> productIds, String reason) {
+        public Return registerReturn(String saleId, List<String> productIds, String reason) {
         Sale sale = saleService.getSaleById(saleId);
 
-        // TODO: Sale.canBeReturned() is being added by Desarrollador 1.
         if (!sale.canBeReturned()) {
             throw new IllegalArgumentException("La venta ya superó el plazo de 30 días para devoluciones.");
         }
@@ -64,6 +74,9 @@ public class ReturnService {
         String id = "RET" + String.format("%03d", nextReturnNumber++);
         Return returnRecord = new Return(id, LocalDate.now(), sale, returnedProducts, reason, 0.0);
         returnRecord.calculateRefundAmount();
+
+        double warrantyRefund = cancelWarrantiesForReturnedConsoles(returnedProducts, saleId);
+        returnRecord.addWarrantyRefund(warrantyRefund);
 
         restoreStockForReturnedProducts(returnedProducts);
 
@@ -122,30 +135,51 @@ public class ReturnService {
     }
 
     /**
-     * Adds up every sale and every return that happened in the given
-     * month and year, and returns the difference between them: what
-     * the store actually kept after refunds.
+     * Adds up the total final amount of every sale made in the given
+     * month and year.
      *
      * @param month the month to report on (1-12)
      * @param year the year to report on
-     * @return total sales minus total returns for that period
+     * @return the total sales amount for that period
      */
-    public double generateMonthlyBalance(int month, int year) {
+    public double calculateMonthlySales(int month, int year) {
         double totalSales = 0.0;
         for (Sale sale : saleService.getAllSales()) {
             if (sale.getDateTime().getMonthValue() == month && sale.getDateTime().getYear() == year) {
                 totalSales += sale.getTotalAmount();
             }
         }
+        return totalSales;
+    }
 
+    /**
+     * Adds up the total refunded amount of every return processed in
+     * the given month and year.
+     *
+     * @param month the month to report on (1-12)
+     * @param year the year to report on
+     * @return the total refunded amount for that period
+     */
+    public double calculateMonthlyReturns(int month, int year) {
         double totalReturns = 0.0;
         for (Return returnRecord : returnRepository.loadAll()) {
             if (returnRecord.getReturnDate().getMonthValue() == month && returnRecord.getReturnDate().getYear() == year) {
                 totalReturns += returnRecord.getRefundAmount();
             }
         }
+        return totalReturns;
+    }
 
-        return totalSales - totalReturns;
+    /**
+     * Calculates the store's net balance for the given month and year:
+     * total sales minus total refunds.
+     *
+     * @param month the month to report on (1-12)
+     * @param year the year to report on
+     * @return total sales minus total returns for that period
+     */
+    public double generateMonthlyBalance(int month, int year) {
+        return calculateMonthlySales(month, year) - calculateMonthlyReturns(month, year);
     }
 
     /**
@@ -180,17 +214,41 @@ public class ReturnService {
     }
 
     /**
-     * Puts the stock back for each returned product, grouping repeated
-     * ids so a product returned twice only needs one call with the
-     * right quantity.
+     * Puts the stock back for each returned item, delegating to the
+     * service that actually owns that item's inventory: accessories
+     * go through AccessoryService, regular products through
+     * ProductService, since each keeps its own separate catalog.
      *
-     * @param returnedProducts the products being returned
+     * @param returnedProducts the items being returned
      */
     private void restoreStockForReturnedProducts(List<Product> returnedProducts) {
         for (Product product : returnedProducts) {
-            // TODO: ProductService.restoreStock(...) is being added by the Líder Técnico.
-            productService.restoreStock(product.getId(), 1);
+            if (product instanceof Accessory) {
+                accessoryService.restoreStock(product.getId(), 1);
+            } else {
+                productService.restoreStock(product.getId(), 1);
+            }
         }
+    }
+
+    /**
+     * Cancels the warranty of every returned console, since a console
+     * that's been given back can't keep an active warranty. Products
+     * that aren't consoles (video games, accessories) simply have no
+     * warranty to cancel, so they're skipped.
+     *
+     * @param returnedProducts the items being returned
+     * @param saleId the id of the original sale
+     * @return the total amount refundable from canceled warranties
+     */
+    private double cancelWarrantiesForReturnedConsoles(List<Product> returnedProducts, String saleId) {
+        double totalWarrantyRefund = 0.0;
+        for (Product product : returnedProducts) {
+            if (product instanceof Console) {
+                totalWarrantyRefund += warrantyService.cancelWarranties(product.getId(), saleId);
+            }
+        }
+        return totalWarrantyRefund;
     }
 
 }

@@ -1,4 +1,3 @@
-
 package com.gamezone.model;
 
 import java.time.LocalDate;
@@ -19,6 +18,7 @@ public class Return {
     private List<Product> returnedProducts;
     private String reason;
     private double refundAmount;
+    private double warrantyRefundAmount;
 
     /**
      * Constructs a new Return instance with full transaction details.
@@ -36,6 +36,7 @@ public class Return {
         this.returnedProducts = returnedProducts;
         this.reason = reason;
         this.refundAmount = refundAmount;
+        this.warrantyRefundAmount = 0.0;
     }
     
     /**
@@ -91,24 +92,63 @@ public class Return {
     public double getRefundAmount() {
         return refundAmount;
     }
+
+    /**
+     * Gets the portion of the refund that came specifically from
+     * canceling warranties on returned consoles, as opposed to the
+     * portion that came from the products themselves.
+     * 
+     * @return the warranty-related refund amount in pesos
+     */
+    public double getWarrantyRefundAmount() {
+        return warrantyRefundAmount;
+    }
     
     /**
-     * Sums the prices of all returned products, assigns the result to refundAmount,
-     * and returns the calculated value.
+     * Calculates the total refund amount considering any proportional discounts
+     * applied during the original sale transaction.
      * 
      * @return total refund amount in pesos
      */
     public double calculateRefundAmount() {
-        double total = 0.0;
-        if (returnedProducts != null) {
+        double totalRefund = 0.0;
+        if (returnedProducts != null && !returnedProducts.isEmpty()) {
+            double discountFactor = 1.0;
+            if (originalSale != null && originalSale.getProducts() != null && !originalSale.getProducts().isEmpty()) {
+                double saleSubtotal = 0.0;
+                for (Product p : originalSale.getProducts()) {
+                    if (p != null) {
+                        saleSubtotal += p.getPrice();
+                    }
+                }
+                double saleTotal = originalSale.getTotalAmount();
+                double totalDiscount = saleSubtotal - saleTotal;
+                if (saleSubtotal > 0 && totalDiscount > 0) {
+                    discountFactor = 1.0 - (totalDiscount / saleSubtotal);
+                }
+            }
             for (Product product : returnedProducts) {
                 if (product != null) {
-                    total += product.getPrice();
+                    totalRefund += product.getPrice() * discountFactor;
                 }
             }
         }
-        this.refundAmount = total;
+        this.refundAmount = totalRefund;
         return this.refundAmount;
+    }
+
+    /**
+     * Adds a warranty cancellation refund (from returned consoles) on
+     * top of whatever product refund was already calculated. Unlike
+     * calculateRefundAmount, this does not recompute anything from
+     * scratch — it's meant to be called once, after the product refund
+     * is already settled.
+     * 
+     * @param amount the refundable amount from canceled warranties
+     */
+    public void addWarrantyRefund(double amount) {
+        this.warrantyRefundAmount = amount;
+        this.refundAmount += amount;
     }
     
     /**
@@ -128,13 +168,39 @@ public class Return {
         sb.append("----------------------------------------\n");
         sb.append("Productos Devueltos:\n");
         
+        double discountFactor = 1.0;
+        if (originalSale != null && originalSale.getProducts() != null && !originalSale.getProducts().isEmpty()) {
+            double saleSubtotal = 0.0;
+            for (Product p : originalSale.getProducts()) {
+                if (p != null) saleSubtotal += p.getPrice();
+            }
+            double totalDiscount = saleSubtotal - originalSale.getTotalAmount();
+            if (saleSubtotal > 0 && totalDiscount > 0) {
+                discountFactor = 1.0 - (totalDiscount / saleSubtotal);
+            }
+        }
+        
         if (returnedProducts != null && !returnedProducts.isEmpty()) {
             for (Product product : returnedProducts) {
-                sb.append(" - ").append(product.getTitle())
-                  .append(" ($").append(String.format("%.2f", product.getPrice())).append(")\n");
+                if (product != null) {
+                    double listPrice = product.getPrice();
+                    double netRefund = listPrice * discountFactor;
+                    double itemDiscount = listPrice - netRefund;
+
+                    sb.append(" - ").append(product.getTitle()).append("\n")
+                      .append("   Precio lista: $").append(String.format("%.2f", listPrice))
+                      .append(" | Desc.: $").append(String.format("%.2f", itemDiscount))
+                      .append(" | Neto: $").append(String.format("%.2f", netRefund)).append("\n");
+                }
             }
         } else {
             sb.append(" (Ninguno)\n");
+        }
+
+        if (warrantyRefundAmount > 0) {
+            sb.append("----------------------------------------\n");
+            sb.append("Reembolso por garantía cancelada: $")
+              .append(String.format("%.2f", warrantyRefundAmount)).append("\n");
         }
         
         sb.append("----------------------------------------\n");

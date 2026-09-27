@@ -55,18 +55,23 @@ public class PromotionService {
 
     /**
      * Registers a promotion that only discounts products of a single
-     * category, such as every video game or every console in the sale.
+     * category, such as every video game, every console, or every accessory in the sale.
      *
      * @param id unique identifier for the new promotion
      * @param name display name shown to the seller/customer
      * @param startDate first day the promotion is valid
      * @param endDate last day the promotion is valid
      * @param discountPercentage the percentage applied within that category
-     * @param targetCategory the category this promotion targets ("VIDEOGAME" or "CONSOLE")
+     * @param targetCategory the category this promotion targets ("VIDEOGAME", "CONSOLE", or "ACCESSORY")
      * @return the promotion that was just created
      */
     public CategoryDiscount registerCategoryDiscount(String id, String name, LocalDate startDate, LocalDate endDate,
                                                        double discountPercentage, String targetCategory) {
+        if (targetCategory == null || (!targetCategory.equalsIgnoreCase("VIDEOGAME") && 
+             !targetCategory.equalsIgnoreCase("CONSOLE") && 
+             !targetCategory.equalsIgnoreCase("ACCESSORY"))) {
+            throw new IllegalArgumentException("Error, la categoría objetivo debe ser VIDEOGAME, CONSOLE o ACCESSORY");
+        }
         CategoryDiscount promotion = new CategoryDiscount(discountPercentage, targetCategory, id, name, startDate, endDate);
         List<Promotion> promotions = promotionRepository.loadAll();
         promotions.add(promotion);

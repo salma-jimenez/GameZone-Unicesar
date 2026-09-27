@@ -2,13 +2,15 @@ package com.gamezone.persistence;
 
 import java.time.LocalDate;
 
-/**
+
+ /**
  * Plain, dependency-free snapshot of one warranty row as stored on disk:
  * just the identifiers and the start date, with no reference to the
  * actual Sale or Product objects. WarrantyService is responsible for
  * resolving those references from the ids carried here.
  *
- * @author (Desarrollador 2)
+ * 
+ * @author Salomejimenez
  */
 public class WarrantyRecord {
 
@@ -54,6 +56,5 @@ public class WarrantyRecord {
     public LocalDate getStartDate() {
         return startDate;
     }
-    
 
 }
