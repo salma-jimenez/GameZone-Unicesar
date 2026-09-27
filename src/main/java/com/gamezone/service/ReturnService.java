@@ -1,6 +1,7 @@
 package com.gamezone.service;
 
 import com.gamezone.model.Accessory;
+import com.gamezone.model.Console;
 import com.gamezone.model.Product;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
@@ -13,7 +14,8 @@ import java.util.List;
 /**
  * Handles the business rules around returning products: checking that
  * a return is even allowed, working out the refund, putting the stock
- * back, and reporting on returns already on file.
+ * back, canceling console warranties, and reporting on returns already
+ * on file.
  *
  * 
  * @author Salomejimenez
@@ -24,6 +26,7 @@ public class ReturnService {
     private SaleService saleService;
     private ProductService productService;
     private AccessoryService accessoryService;
+    private WarrantyService warrantyService;
     private int nextReturnNumber = 1;
 
     /**
@@ -34,20 +37,24 @@ public class ReturnService {
      * @param saleService used to fetch and validate the original sale
      * @param productService used to restore stock on returned products
      * @param accessoryService used to restore stock on returned accessories
+     * @param warrantyService used to cancel warranties on returned consoles
      */
     public ReturnService(ReturnRepository returnRepository, SaleService saleService,
-                          ProductService productService, AccessoryService accessoryService) {
+                          ProductService productService, AccessoryService accessoryService,
+                          WarrantyService warrantyService) {
         this.returnRepository = returnRepository;
         this.saleService = saleService;
         this.productService = productService;
         this.accessoryService = accessoryService;
+        this.warrantyService = warrantyService;
     }
 
     /**
      * Processes a new return: makes sure the sale exists and is still
      * within the return window, checks that every requested product
-     * actually came from that sale, calculates the refund, restores
-     * stock, and saves the record.
+     * actually came from that sale, calculates the refund, cancels
+     * warranties on any returned console, restores stock, and saves
+     * the record.
      *
      * @param saleId the id of the sale the products were bought in
      * @param productIds the ids of the specific products being returned
@@ -55,7 +62,7 @@ public class ReturnService {
      * @param reason the customer's stated reason for the return
      * @return the newly created and persisted Return
      */
-    public Return registerReturn(String saleId, List<String> productIds, String reason) {
+        public Return registerReturn(String saleId, List<String> productIds, String reason) {
         Sale sale = saleService.getSaleById(saleId);
 
         if (!sale.canBeReturned()) {
@@ -67,6 +74,9 @@ public class ReturnService {
         String id = "RET" + String.format("%03d", nextReturnNumber++);
         Return returnRecord = new Return(id, LocalDate.now(), sale, returnedProducts, reason, 0.0);
         returnRecord.calculateRefundAmount();
+
+        double warrantyRefund = cancelWarrantiesForReturnedConsoles(returnedProducts, saleId);
+        returnRecord.addWarrantyRefund(warrantyRefund);
 
         restoreStockForReturnedProducts(returnedProducts);
 
@@ -124,7 +134,7 @@ public class ReturnService {
         return result;
     }
 
-        /**
+    /**
      * Adds up the total final amount of every sale made in the given
      * month and year.
      *
@@ -219,6 +229,26 @@ public class ReturnService {
                 productService.restoreStock(product.getId(), 1);
             }
         }
+    }
+
+    /**
+     * Cancels the warranty of every returned console, since a console
+     * that's been given back can't keep an active warranty. Products
+     * that aren't consoles (video games, accessories) simply have no
+     * warranty to cancel, so they're skipped.
+     *
+     * @param returnedProducts the items being returned
+     * @param saleId the id of the original sale
+     * @return the total amount refundable from canceled warranties
+     */
+    private double cancelWarrantiesForReturnedConsoles(List<Product> returnedProducts, String saleId) {
+        double totalWarrantyRefund = 0.0;
+        for (Product product : returnedProducts) {
+            if (product instanceof Console) {
+                totalWarrantyRefund += warrantyService.cancelWarranties(product.getId(), saleId);
+            }
+        }
+        return totalWarrantyRefund;
     }
 
 }

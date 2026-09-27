@@ -32,7 +32,7 @@ public class SaleService {
     /**
      * Registra una venta procesando productos, promociones y garantías.
      */
-    public void registerSale(Sale sale, List<String> extendedWarrantyProductIds) {
+public void registerSale(Sale sale, List<String> extendedWarrantyProductIds) {
         if (sale == null) {
             throw new IllegalArgumentException("La venta no puede ser nula.");
         }
@@ -40,40 +40,46 @@ public class SaleService {
             throw new IllegalArgumentException("Se requiere al menos un producto para registrar la venta.");
         }
 
-        // 1. Validar que haya stock disponible
+        // 1 & 2. Validar stock de productos y accesorios antes de procesar
         for (Product item : sale.getProduct()) {
-            if (item.getQuantityAvailable() < 1) {
-                throw new IllegalStateException("Stock insuficiente para el producto: " + item.getTitle());
+            if (item instanceof Accessory) {
+                if (((Accessory) item).getQuantityAvailable() < 1) {
+                    throw new IllegalStateException("Stock insuficiente para el accesorio: " + item.getTitle());
+                }
+            } else {
+                if (item.getQuantityAvailable() < 1) {
+                    throw new IllegalStateException("Stock insuficiente para el producto: " + item.getTitle());
+                }
             }
         }
 
-        // 2. Calcular subtotal inicial
+        // 3. Crear la venta y calcular el subtotal base de los ítems
         double subtotal = sale.calculateSubtotal();
-        sale.setTotalAmount(subtotal);
+        sale.setTotalAmount(subtotal); // O un método específico para subtotal si lo prefieres
 
-        // 3. Evaluar y aplicar promociones
+        // 4. Consultar PromotionService.findBestPromotionFor(sale) y calcular el descuento solo sobre el subtotal
+        double discount = 0.0;
         if (promotionService != null) {
             Promotion bestPromotion = promotionService.findBestPromotionFor(sale);
             if (bestPromotion != null) {
-                double discount = bestPromotion.calculateDiscount(sale);
+                discount = bestPromotion.calculateDiscount(sale);
                 if (discount > 0) {
                     sale.setAppliedPromotionName(bestPromotion.getName());
                     sale.setDiscountAmount(discount);
-                    sale.setTotalAmount(subtotal - discount);
                 }
             }
         }
 
-        // 4. Procesar Garantías (Requerimiento 4)
+        // 5. Generar la garantía básica de cada consola y las garantías extendidas solicitadas, sumando su costo
         double extraWarrantyCost = 0.0;
         if (warrantyService != null) {
             for (Product product : sale.getProduct()) {
-                // Garantía Básica automática para consolas
                 if (product instanceof Console) {
+                    // Garantía Básica automática (costo cero)
                     warrantyService.assignBasicWarranty(product, sale, sale.getDateTime().toLocalDate());
                 }
 
-                // Garantía Extendida opcional para consolas
+                // Si se solicitó la garantía extendida para esta consola
                 if (extendedWarrantyProductIds != null && extendedWarrantyProductIds.contains(product.getId())) {
                     if (product instanceof Console) {
                         var extendedWarranty = warrantyService.assignExtendedWarranty(product, sale, sale.getDateTime().toLocalDate());
@@ -83,10 +89,11 @@ public class SaleService {
             }
         }
 
-        // Sumar costo adicional de garantías extendidas al total de la venta
-        sale.setTotalAmount(sale.getTotalAmount() + extraWarrantyCost);
+        // 6. Calcular el total final: subtotal - descuento + costo de garantías extendidas
+        double finalTotal = subtotal - discount + extraWarrantyCost;
+        sale.setTotalAmount(finalTotal);
 
-        // 5. Descontar inventario
+        // 7. Actualizar el inventario delegando en ProductService o AccessoryService según el tipo del ítem
         for (Product item : sale.getProduct()) {
             if (item instanceof Accessory) {
                 accessoryService.updateStock(item.getId(), item.getQuantityAvailable() - 1);
@@ -95,7 +102,7 @@ public class SaleService {
             }
         }
 
-        // 6. Persistir la venta
+        // 8. Persistir la venta
         saleRepository.save(sale);
     }
 
@@ -117,4 +124,5 @@ public class SaleService {
         }
         return sale;
     }
+    
 }
