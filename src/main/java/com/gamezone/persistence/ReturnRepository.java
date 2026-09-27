@@ -1,10 +1,8 @@
 package com.gamezone.persistence;
 
-import com.gamezone.model.Accessory;
 import com.gamezone.model.Product;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
-import com.gamezone.service.AccessoryService;
 import com.gamezone.service.ProductService;
 import com.gamezone.service.SaleService;
 
@@ -16,9 +14,8 @@ import java.util.List;
 /**
  * Handles persistence of Return records in a CSV file. Since a Return
  * only stores its data on disk as plain identifiers, this class needs
- * SaleService, ProductService, and AccessoryService to rebuild the
- * actual Sale and Product/Accessory references each time a record is
- * loaded back.
+ * SaleService and ProductService to rebuild the actual Sale and Product
+ * references each time a record is loaded back
  * 
  * @author Salomejimenez
  */
@@ -29,21 +26,17 @@ public class ReturnRepository {
 
     private SaleService saleService;
     private ProductService productService;
-    private AccessoryService accessoryService;
 
     /**
      * Wires this repository to the services it needs to resolve the
-     * Sale, Product, and Accessory objects referenced by each stored
-     * return.
+     * Sale and Product objects referenced by each stored return.
      *
      * @param saleService used to look up the original sale by id
      * @param productService used to look up returned products by id
-     * @param accessoryService used to look up returned accessories by id
      */
-    public ReturnRepository(SaleService saleService, ProductService productService, AccessoryService accessoryService) {
+    public ReturnRepository(SaleService saleService, ProductService productService) {
         this.saleService = saleService;
         this.productService = productService;
-        this.accessoryService = accessoryService;
     }
 
     /**
@@ -63,8 +56,7 @@ public class ReturnRepository {
 
     /**
      * Reads every return stored in the CSV file, resolving each row's
-     * sale and product/accessory references through the injected
-     * services.
+     * sale and product references through the injected services.
      *
      * @return the returns found on disk, or an empty list if the file
      *         does not exist yet
@@ -124,8 +116,8 @@ public class ReturnRepository {
 
     /**
      * Rebuilds a Return object from one CSV row, using the injected
-     * services to fetch the actual Sale and Product/Accessory
-     * instances that the stored ids refer to.
+     * services to fetch the actual Sale and Product instances that
+     * the stored ids refer to.
      *
      * @param line the raw CSV row to interpret
      * @return the return described by that row
@@ -144,38 +136,18 @@ public class ReturnRepository {
         List<Product> returnedProducts = new ArrayList<>();
         if (!productIdsField.isBlank()) {
             String[] productIds = productIdsField.split(PRODUCT_SEPARATOR);
+            List<Product> catalog = productService.getAllProducts();
             for (String productId : productIds) {
-                Product found = findProductOrAccessoryById(productId);
-                if (found != null) {
-                    returnedProducts.add(found);
+                for (Product product : catalog) {
+                    if (product.getId().equals(productId)) {
+                        returnedProducts.add(product);
+                        break;
+                    }
                 }
             }
         }
 
         return new Return(id, returnDate, originalSale, returnedProducts, reason, refundAmount);
-    }
-
-    /**
-     * Looks up an id first among regular products, and only if it's
-     * not found there, among accessories — since a returned item can
-     * be either kind, but each catalog is separate.
-     *
-     * @param productId the id to look up
-     * @return the matching Product or Accessory, or null if neither
-     *         catalog has it
-     */
-    private Product findProductOrAccessoryById(String productId) {
-        for (Product product : productService.getAllProducts()) {
-            if (product.getId().equals(productId)) {
-                return product;
-            }
-        }
-        for (Accessory accessory : accessoryService.listAllAccessories()) {
-            if (accessory.getId().equals(productId)) {
-                return accessory;
-            }
-        }
-        return null;
     }
 
 }

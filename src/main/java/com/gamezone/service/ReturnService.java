@@ -1,12 +1,12 @@
 package com.gamezone.service;
 
-import com.gamezone.model.Accessory;
 import com.gamezone.model.Product;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
 import com.gamezone.persistence.ReturnRepository;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,24 +23,20 @@ public class ReturnService {
     private ReturnRepository returnRepository;
     private SaleService saleService;
     private ProductService productService;
-    private AccessoryService accessoryService;
     private int nextReturnNumber = 1;
 
     /**
-     * Wires this service to the repository and the other services
+     * Wires this service to the repository and the two other services
      * it needs to validate and complete a return.
      *
      * @param returnRepository persistence layer for return records
      * @param saleService used to fetch and validate the original sale
      * @param productService used to restore stock on returned products
-     * @param accessoryService used to restore stock on returned accessories
      */
-    public ReturnService(ReturnRepository returnRepository, SaleService saleService,
-                          ProductService productService, AccessoryService accessoryService) {
+    public ReturnService(ReturnRepository returnRepository, SaleService saleService, ProductService productService) {
         this.returnRepository = returnRepository;
         this.saleService = saleService;
         this.productService = productService;
-        this.accessoryService = accessoryService;
     }
 
     /**
@@ -58,6 +54,7 @@ public class ReturnService {
     public Return registerReturn(String saleId, List<String> productIds, String reason) {
         Sale sale = saleService.getSaleById(saleId);
 
+        // TODO: Sale.canBeReturned() is being added by Desarrollador 1.
         if (!sale.canBeReturned()) {
             throw new IllegalArgumentException("La venta ya superó el plazo de 30 días para devoluciones.");
         }
@@ -124,52 +121,31 @@ public class ReturnService {
         return result;
     }
 
-        /**
-     * Adds up the total final amount of every sale made in the given
-     * month and year.
-     *
-     * @param month the month to report on (1-12)
-     * @param year the year to report on
-     * @return the total sales amount for that period
-     */
-    public double calculateMonthlySales(int month, int year) {
-        double totalSales = 0.0;
-        for (Sale sale : saleService.getAllSales()) {
-            if (sale.getDateTime().getMonthValue() == month && sale.getDateTime().getYear() == year) {
-                totalSales += sale.getTotalAmount();
-            }
-        }
-        return totalSales;
-    }
-
     /**
-     * Adds up the total refunded amount of every return processed in
-     * the given month and year.
-     *
-     * @param month the month to report on (1-12)
-     * @param year the year to report on
-     * @return the total refunded amount for that period
-     */
-    public double calculateMonthlyReturns(int month, int year) {
-        double totalReturns = 0.0;
-        for (Return returnRecord : returnRepository.loadAll()) {
-            if (returnRecord.getReturnDate().getMonthValue() == month && returnRecord.getReturnDate().getYear() == year) {
-                totalReturns += returnRecord.getRefundAmount();
-            }
-        }
-        return totalReturns;
-    }
-
-    /**
-     * Calculates the store's net balance for the given month and year:
-     * total sales minus total refunds.
+     * Adds up every sale and every return that happened in the given
+     * month and year, and returns the difference between them: what
+     * the store actually kept after refunds.
      *
      * @param month the month to report on (1-12)
      * @param year the year to report on
      * @return total sales minus total returns for that period
      */
     public double generateMonthlyBalance(int month, int year) {
-        return calculateMonthlySales(month, year) - calculateMonthlyReturns(month, year);
+        double totalSales = 0.0;
+        for (Sale sale : saleService.getAllSales()) {
+            if (sale.getDateTime().getMonthValue() == month && sale.getDateTime().getYear() == year) {
+                totalSales += sale.getTotalAmount();
+            }
+        }
+
+        double totalReturns = 0.0;
+        for (Return returnRecord : returnRepository.loadAll()) {
+            if (returnRecord.getReturnDate().getMonthValue() == month && returnRecord.getReturnDate().getYear() == year) {
+                totalReturns += returnRecord.getRefundAmount();
+            }
+        }
+
+        return totalSales - totalReturns;
     }
 
     /**
@@ -204,20 +180,16 @@ public class ReturnService {
     }
 
     /**
-     * Puts the stock back for each returned item, delegating to the
-     * service that actually owns that item's inventory: accessories
-     * go through AccessoryService, regular products through
-     * ProductService, since each keeps its own separate catalog.
+     * Puts the stock back for each returned product, grouping repeated
+     * ids so a product returned twice only needs one call with the
+     * right quantity.
      *
-     * @param returnedProducts the items being returned
+     * @param returnedProducts the products being returned
      */
     private void restoreStockForReturnedProducts(List<Product> returnedProducts) {
         for (Product product : returnedProducts) {
-            if (product instanceof Accessory) {
-                accessoryService.restoreStock(product.getId(), 1);
-            } else {
-                productService.restoreStock(product.getId(), 1);
-            }
+            // TODO: ProductService.restoreStock(...) is being added by the Líder Técnico.
+            productService.restoreStock(product.getId(), 1);
         }
     }
 
