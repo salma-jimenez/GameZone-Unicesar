@@ -106,4 +106,3 @@ cost (zero for basic warranties, the additional cost for extended warranties). F
 ReturnService.registerReturn was updated to invoke this method for every returned console, 
 integrating the returned value into the total refund amount and incorporating warranty 
 refund amounts into the return calculation and receipt generation.
-
