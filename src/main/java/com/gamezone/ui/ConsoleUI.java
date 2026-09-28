@@ -390,7 +390,7 @@ public class ConsoleUI {
         JOptionPane.showMessageDialog(null, sb.toString());
     }
 
-    private void showMonthlyBalanceUI() {
+        private void showMonthlyBalanceUI() {
         String monthStr = JOptionPane.showInputDialog("Ingrese el mes (1-12):");
         if (monthStr == null) return;
         int month = Integer.parseInt(monthStr);
@@ -399,8 +399,15 @@ public class ConsoleUI {
         if (yearStr == null) return;
         int year = Integer.parseInt(yearStr);
 
+        double totalSales = returnService.calculateMonthlySales(month, year);
+        double totalReturns = returnService.calculateMonthlyReturns(month, year);
         double balance = returnService.generateMonthlyBalance(month, year);
-        JOptionPane.showMessageDialog(null, "El balance neto para el período " + month + "/" + year + " es: $" + String.format("%.2f", balance));
+
+        JOptionPane.showMessageDialog(null,
+            "--- Balance del período " + month + "/" + year + " ---\n"
+            + "Total de ventas: $" + String.format("%.2f", totalSales) + "\n"
+            + "Total de devoluciones: $" + String.format("%.2f", totalReturns) + "\n"
+            + "Balance neto: $" + String.format("%.2f", balance));
     }
 
     // --- SUBMENÚ REQUERIMIENTO 4: GESTIÓN DE GARANTÍAS ---
