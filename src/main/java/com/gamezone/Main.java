@@ -20,14 +20,12 @@ public class Main {
         SaleRepository saleRepository = new SaleRepository();
         AccessoryRepository accessoryRepository = new AccessoryRepository();
         PromotionRepository promotionRepository = new PromotionRepository();
-
-        // Repositorios que requieren dependencias en su constructor según el error:
-        WarrantyRepository warrantyRepository = new WarrantyRepository(productRepository, saleRepository);
-
+        WarrantyRepository warrantyRepository = new WarrantyRepository();
+        
         // 2. Instanciar Capa de Servicios (Services básicos)
         ProductService productService = new ProductService(productRepository);
         PersonService personService = new PersonService(personRepository);
-        WarrantyService warrantyService = new WarrantyService(warrantyRepository);
+        WarrantyService warrantyService = new WarrantyService(warrantyRepository, saleRepository, productService);
         AccessoryService accessoryService = new AccessoryService(accessoryRepository);
         PromotionService promotionService = new PromotionService(promotionRepository);
 
