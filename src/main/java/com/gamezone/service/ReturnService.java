@@ -124,31 +124,52 @@ public class ReturnService {
         return result;
     }
 
-    /**
-     * Adds up every sale and every return that happened in the given
-     * month and year, and returns the difference between them: what
-     * the store actually kept after refunds.
+        /**
+     * Adds up the total final amount of every sale made in the given
+     * month and year.
      *
      * @param month the month to report on (1-12)
      * @param year the year to report on
-     * @return total sales minus total returns for that period
+     * @return the total sales amount for that period
      */
-    public double generateMonthlyBalance(int month, int year) {
+    public double calculateMonthlySales(int month, int year) {
         double totalSales = 0.0;
         for (Sale sale : saleService.getAllSales()) {
             if (sale.getDateTime().getMonthValue() == month && sale.getDateTime().getYear() == year) {
                 totalSales += sale.getTotalAmount();
             }
         }
+        return totalSales;
+    }
 
+    /**
+     * Adds up the total refunded amount of every return processed in
+     * the given month and year.
+     *
+     * @param month the month to report on (1-12)
+     * @param year the year to report on
+     * @return the total refunded amount for that period
+     */
+    public double calculateMonthlyReturns(int month, int year) {
         double totalReturns = 0.0;
         for (Return returnRecord : returnRepository.loadAll()) {
             if (returnRecord.getReturnDate().getMonthValue() == month && returnRecord.getReturnDate().getYear() == year) {
                 totalReturns += returnRecord.getRefundAmount();
             }
         }
+        return totalReturns;
+    }
 
-        return totalSales - totalReturns;
+    /**
+     * Calculates the store's net balance for the given month and year:
+     * total sales minus total refunds.
+     *
+     * @param month the month to report on (1-12)
+     * @param year the year to report on
+     * @return total sales minus total returns for that period
+     */
+    public double generateMonthlyBalance(int month, int year) {
+        return calculateMonthlySales(month, year) - calculateMonthlyReturns(month, year);
     }
 
     /**
