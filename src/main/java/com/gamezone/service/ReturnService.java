@@ -1,12 +1,12 @@
 package com.gamezone.service;
 
+import com.gamezone.model.Accessory;
 import com.gamezone.model.Product;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
 import com.gamezone.persistence.ReturnRepository;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,20 +23,24 @@ public class ReturnService {
     private ReturnRepository returnRepository;
     private SaleService saleService;
     private ProductService productService;
+    private AccessoryService accessoryService;
     private int nextReturnNumber = 1;
 
     /**
-     * Wires this service to the repository and the two other services
+     * Wires this service to the repository and the other services
      * it needs to validate and complete a return.
      *
      * @param returnRepository persistence layer for return records
      * @param saleService used to fetch and validate the original sale
      * @param productService used to restore stock on returned products
+     * @param accessoryService used to restore stock on returned accessories
      */
-    public ReturnService(ReturnRepository returnRepository, SaleService saleService, ProductService productService) {
+    public ReturnService(ReturnRepository returnRepository, SaleService saleService,
+                          ProductService productService, AccessoryService accessoryService) {
         this.returnRepository = returnRepository;
         this.saleService = saleService;
         this.productService = productService;
+        this.accessoryService = accessoryService;
     }
 
     /**
@@ -54,7 +58,6 @@ public class ReturnService {
     public Return registerReturn(String saleId, List<String> productIds, String reason) {
         Sale sale = saleService.getSaleById(saleId);
 
-        // TODO: Sale.canBeReturned() is being added by Desarrollador 1.
         if (!sale.canBeReturned()) {
             throw new IllegalArgumentException("La venta ya superó el plazo de 30 días para devoluciones.");
         }
@@ -180,16 +183,20 @@ public class ReturnService {
     }
 
     /**
-     * Puts the stock back for each returned product, grouping repeated
-     * ids so a product returned twice only needs one call with the
-     * right quantity.
+     * Puts the stock back for each returned item, delegating to the
+     * service that actually owns that item's inventory: accessories
+     * go through AccessoryService, regular products through
+     * ProductService, since each keeps its own separate catalog.
      *
-     * @param returnedProducts the products being returned
+     * @param returnedProducts the items being returned
      */
     private void restoreStockForReturnedProducts(List<Product> returnedProducts) {
         for (Product product : returnedProducts) {
-            // TODO: ProductService.restoreStock(...) is being added by the Líder Técnico.
-            productService.restoreStock(product.getId(), 1);
+            if (product instanceof Accessory) {
+                accessoryService.restoreStock(product.getId(), 1);
+            } else {
+                productService.restoreStock(product.getId(), 1);
+            }
         }
     }
 
