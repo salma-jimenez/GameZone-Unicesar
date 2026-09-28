@@ -3,7 +3,8 @@
 This document details the analysis, causes, and applied solutions for the integration
 adjustments (A1–A7) required to unify the four independent modules (Accessories, Promotions,
 Warranties, and Returns) into the main GameZone system.
-A1 - Accessory Category Discount
+
+## A1 - Accessory Category Discount
 Description: The Category Discount feature from Requirement 2 originally limited target 
 categories strictly to "VIDEOGAME" and "CONSOLE". With the integration of the accessories 
 module, the store required the capability to launch promotions targeting accessories.
@@ -18,7 +19,7 @@ category belongs to one of the three allowed types. Finally, ConsoleMenu was upd
 to include the accessory option when registering a category promotion, and a valid 
 accessory category promotion was added to data/promotions.csv for the working week.
 
-A2 - Circular Dependency in the Warranty Module
+## A2 - Circular Dependency in the Warranty Module
 Description: Implementing Requirement 4 introduced a circular dependency cycle
  (SaleService to WarrantyService to WarrantyRepository to SaleService) because
  the warranty repository needed to resolve references back to sales during data loading.
@@ -33,7 +34,7 @@ Product references using their identifiers by receiving WarrantyRepository, Sale
 and ProductService through its constructor, allowing proper object construction order 
 in Main and updating docs/warranty-class-diagram.md to reflect the new decoupled dependencies.
 
-A3 - Unified Sale Registration Flow
+## A3 - Unified Sale Registration Flow
 Description: Requirements 1, 2, and 4 independently modified SaleService.registerSale, 
 and in an integrated environment, the execution order of operations dictates the final 
 financial outcome, such as whether discounts apply before or after warranty costs.
@@ -51,7 +52,7 @@ updated to display the subtotal, discount name and amount, extended warranty cos
 and final total, and the sales submenu in ConsoleMenu was enhanced to allow selecting 
 products and accessories while prompting for console warranties.
 
-A4 - Accessory Return Management
+## A4 - Accessory Return Management
 Description: Requirement 3 originally restored stock by exclusively invoking 
 ProductService.restoreStock, which lacked handling for accessory inventory, 
 leaving returned accessories with unrestored stock.
@@ -64,7 +65,7 @@ via constructor and delegate stock restoration according to the returned item ty
 adding a restoreStock method in AccessoryService that mirrors ProductService, and 
 updating ReturnRepository to properly resolve references to accessories during data loading.
 
-A5 - Discount-Aware Refund Calculation
+## A5 - Discount-Aware Refund Calculation
 Description: Return.calculateRefundAmount originally summed the list prices of 
 returned items, meaning that if the original sale included a promotion discount, 
 the store over-refunded the customer compared to what they actually paid.
@@ -77,7 +78,7 @@ item's refund proportionally to the original sale's discount using the formula
 itemPrice * (1 - discountAmount / subtotal), and Return.generateReturnReceipt 
 was updated to display the list price, proportional discount, and net refunded amount per item.
 
-A6 - Monthly Balance Report Enhancement
+## A6 - Monthly Balance Report Enhancement
 Description: Requirement 3 required displaying total sales, total returns, and 
 net balance, but generateMonthlyBalance originally returned only the net balance, 
 and with integrated promotions and warranties, sales totals needed to reflect the final sale amounts.
@@ -91,7 +92,7 @@ net difference, ensuring the sales total correctly utilizes the final price of
 each sale, and updating ConsoleMenu to display all three values clearly in the 
 monthly balance option.
 
-A7 - Warranty Cancellation on Console Return
+## A7 - Warranty Cancellation on Console Return
 Description: None of the individual requirements specified how to handle the 
 warranty of a returned console, but in the integrated system, a returned console 
 cannot maintain an active warranty.
