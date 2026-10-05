@@ -195,4 +195,12 @@ public class Sale {
         long daysBetween = ChronoUnit.DAYS.between(dateTime.toLocalDate(), java.time.LocalDate.now());
         return daysBetween >= 0 && daysBetween <= 30;
     }
+    
+    public void validateStock() {
+        for (Product p : this.getProduct()) {
+            if (!p.hasStock()) {
+                throw new IllegalStateException("Stock insuficiente: " + p.getTitle());
+            }
+        }
+    }
 }
