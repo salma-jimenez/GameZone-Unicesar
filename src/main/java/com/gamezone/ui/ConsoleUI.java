@@ -104,7 +104,14 @@ public class ConsoleUI {
             if (product != null) {
                 products.add(product);
 
-                // Si es una consola, preguntar si requiere garantía extendida
+                // =========================================================================
+                // INICIO EJEMPLO EXPOSICIÓN: CONTROLLER (CONTROLADOR)
+                // =========================================================================
+                /*
+                // [ANTES - VIOLA EL PRINCIPIO]
+                // La capa de interfaz gráfica (UI) conoce las reglas de negocio,
+                // verificando directamente si el producto es una Consola para 
+                // decidir si ofrece o no la garantía extendida.
                 if (product instanceof com.gamezone.model.Console) {
                     int confirm = JOptionPane.showConfirmDialog(
                         null,
@@ -116,6 +123,18 @@ public class ConsoleUI {
                         extendedWarrantyProductIds.add(product.getId());
                     }
                 }
+                */
+                // [DESPUÉS - APLICA EL PRINCIPIO]
+                // La UI delega la regla de negocio al Controlador (WarrantyService).
+                // La interfaz solo se encarga de pintar el diálogo si el controlador lo aprueba.
+                
+                if (warrantyService.isEligibleForExtended(product) && askExtendedWarranty(product)) {
+                    extendedWarrantyProductIds.add(product.getId());
+                }
+
+                // =========================================================================
+                // FIN EJEMPLO EXPOSICIÓN
+                // =========================================================================
             } else {
                 JOptionPane.showMessageDialog(null, "Producto no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -516,5 +535,15 @@ public class ConsoleUI {
         StringBuilder sb = new StringBuilder("--- GARANTÍAS PRÓXIMAS A VENCER ---\n\n");
         list.forEach(w -> sb.append(w.generateWarrantyCertificate()).append("\n------------------\n"));
         JOptionPane.showMessageDialog(null, sb.toString());
+    }
+    
+    private boolean askExtendedWarranty(Product product) {
+        int confirm = JOptionPane.showConfirmDialog(
+            null,
+            "¿Desea agregar Garantía Extendida de 12 meses extra para el producto: " + product.getTitle() + "?",
+            "Garantía Extendida",
+            JOptionPane.YES_NO_OPTION
+        );
+        return confirm == JOptionPane.YES_OPTION;
     }
 }
