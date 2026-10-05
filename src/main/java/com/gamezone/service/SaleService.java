@@ -45,17 +45,14 @@ public void registerSale(Sale sale, List<String> extendedWarrantyProductIds) {
             throw new IllegalArgumentException("Se requiere al menos un producto para registrar la venta.");
         }
 
-        // =====================================================================
-        // INICIO EJEMPLO EXPOSICIÓN: INFORMATION EXPERT (EXPERTO EN INFORMACIÓN)
-        // =====================================================================
-        
-        // 1 & 2. Validar stock de productos y accesorios antes de procesar
+        // =========================================================================
+        // 1. EJEMPLO EXPOSICIÓN: INFORMATION EXPERT (EXPERTO EN INFORMACIÓN)
+        // =========================================================================
         
         /* 
-        // [ANTES - VIOLA EL PRINCIPIO]
-        // SaleService asume la responsabilidad de revisar el stock de cada producto,
-        // inspeccionando sus datos internos e incluso rompiendo la encapsulación 
-        // y el polimorfismo al verificar "instanceof".
+        // [ANTES - VIOLA EL PATRÓN]
+        // SaleService inspeccionaba los productos uno a uno con un "instanceof"
+        // para validar el stock por su cuenta, asumiendo datos ajenos.
         
         for (Product item : sale.getProduct()) {
             if (item instanceof Accessory) {
@@ -70,67 +67,45 @@ public void registerSale(Sale sale, List<String> extendedWarrantyProductIds) {
         }
         */
 
-        // [DESPUÉS - APLICA EL PRINCIPIO]
-        // La entidad 'Sale' es la experta en conocer su lista de productos, y a su vez,
-        // cada 'Product' es experto en conocer su propio stock. El servicio solo delega.
-        
+        // [DESPUÉS - APLICA INFORMATION EXPERT]
+        // Delegamos la validación a 'Sale', ya que ella posee la lista de productos,
+        // y a su vez cada producto valida su propio stock.
         sale.validateStock();
 
-        // =====================================================================
-        // FIN EJEMPLO EXPOSICIÓN
-        // =====================================================================
+        // =========================================================================
+        // FIN EJEMPLO 1
+        // =========================================================================
         
-        // 3. Crear la venta y calcular el subtotal base de los ítems
+        // =========================================================================
+        // 5. EJEMPLO EXPOSICIÓN: HIGH COHESION (ALTA COHESIÓN)
+        // =========================================================================
+        
+        /* 
+        // [ANTES - VIOLA EL PATRÓN]
+        // Un método gigante y monolítico que hacía 8 tareas diferentes mezcladas
+        // (calcular subtotales, buscar promos, asignar garantías, tocar inventario, etc.).
+        */
+
+        // [DESPUÉS - APLICA HIGH COHESION]
+        // El proceso principal se divide en métodos privados enfocados y altamente cohesivos.
+        
         double subtotal = sale.calculateSubtotal();
-        sale.setTotalAmount(subtotal); // O un método específico para subtotal si lo prefieres
-
-        // 4. Consultar PromotionService.findBestPromotionFor(sale) y calcular el descuento solo sobre el subtotal
-        double discount = 0.0;
-        if (promotionService != null) {
-            Promotion bestPromotion = promotionService.findBestPromotionFor(sale);
-            if (bestPromotion != null) {
-                discount = bestPromotion.calculateDiscount(sale);
-                if (discount > 0) {
-                    sale.setAppliedPromotionName(bestPromotion.getName());
-                    sale.setDiscountAmount(discount);
-                }
-            }
-        }
-
-        // 5. Generar la garantía básica de cada consola y las garantías extendidas solicitadas, sumando su costo
-        double extraWarrantyCost = 0.0;
-        if (warrantyService != null) {
-            for (Product product : sale.getProduct()) {
-                if (product instanceof Console) {
-                    // Garantía Básica automática (costo cero)
-                    warrantyService.assignBasicWarranty(product, sale, sale.getDateTime().toLocalDate());
-                }
-
-                // Si se solicitó la garantía extendida para esta consola
-                if (extendedWarrantyProductIds != null && extendedWarrantyProductIds.contains(product.getId())) {
-                    if (product instanceof Console) {
-                        var extendedWarranty = warrantyService.assignExtendedWarranty(product, sale, sale.getDateTime().toLocalDate());
-                        extraWarrantyCost += extendedWarranty.getAdditionalCost();
-                    }
-                }
-            }
-        }
-
-        // 6. Calcular el total final: subtotal - descuento + costo de garantías extendidas
+        sale.setTotalAmount(subtotal);
+        
+        applyBestPromotion(sale);                                // Tarea específica 1
+        
+        double extraWarrantyCost = assignWarranties(sale, extendedWarrantyProductIds); // Tarea específica 2
+        
+        double discount = sale.getDiscountAmount();
         double finalTotal = subtotal - discount + extraWarrantyCost;
-        sale.setTotalAmount(finalTotal);
+        sale.setTotalAmount(finalTotal);                         
+        
+        discountStock(sale);                                     // Tarea específica 3
+        saleRepository.save(sale);                               // Persistencia
 
-        // 7. Actualizar el inventario delegando en ProductService o AccessoryService según el tipo del ítem
-        for (Product item : sale.getProduct()) {
-            if (item instanceof Accessory) {
-                accessoryService.updateStock(item.getId(), item.getQuantityAvailable() - 1);
-            } else {
-                productService.updateStock(item.getId(), item.getQuantityAvailable() - 1);
-            }
-        }
-
-        // 8. Persistir la venta
-        saleRepository.save(sale);
+        // =========================================================================
+        // FIN EJEMPLO 5
+        // =========================================================================
     }
 
     /**
@@ -152,4 +127,45 @@ public void registerSale(Sale sale, List<String> extendedWarrantyProductIds) {
         return sale;
     }
     
+    // --- MÉTODOS AUXILIARES (APOYAN LA ALTA COHESIÓN) ---
+    private void applyBestPromotion(Sale sale) {
+        if (promotionService != null) {
+            Promotion bestPromotion = promotionService.findBestPromotionFor(sale);
+            if (bestPromotion != null) {
+                double discount = bestPromotion.calculateDiscount(sale);
+                if (discount > 0) {
+                    sale.setAppliedPromotionName(bestPromotion.getName());
+                    sale.setDiscountAmount(discount);
+                }
+            }
+        }
+    }
+
+    private double assignWarranties(Sale sale, List<String> extendedIds) {
+        double extraCost = 0.0;
+        if (warrantyService != null) {
+            for (Product product : sale.getProduct()) {
+                if (product instanceof Console) {
+                    warrantyService.assignBasicWarranty(product, sale, sale.getDateTime().toLocalDate());
+                }
+                if (extendedIds != null && extendedIds.contains(product.getId())) {
+                    if (product instanceof Console) {
+                        var ext = warrantyService.assignExtendedWarranty(product, sale, sale.getDateTime().toLocalDate());
+                        extraCost += ext.getAdditionalCost();
+                    }
+                }
+            }
+        }
+        return extraCost;
+    }
+
+    private void discountStock(Sale sale) {
+        for (Product item : sale.getProduct()) {
+            if (item instanceof Accessory) {
+                accessoryService.updateStock(item.getId(), item.getQuantityAvailable() - 1);
+            } else {
+                productService.updateStock(item.getId(), item.getQuantityAvailable() - 1);
+            }
+        }
+    }
 }
