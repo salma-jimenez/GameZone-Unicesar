@@ -4,14 +4,34 @@ import com.gamezone.model.Accessory;
 import com.gamezone.model.Product;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
-import com.gamezone.service.AccessoryService;
-import com.gamezone.service.ProductService;
-import com.gamezone.service.SaleService;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+// =========================================================================
+// INICIO EJEMPLO EXPOSICIÓN: LOW COUPLING (BAJO ACOPLAMIENTO)
+// =========================================================================
+/*
+// [ANTES - VIOLA EL PRINCIPIO]
+// La capa de persistencia importa y depende fuertemente de la capa de servicios.
+import com.gamezone.service.AccessoryService;
+import com.gamezone.service.ProductService;
+import com.gamezone.service.SaleService;
+*/
+
+// [DESPUÉS - APLICA EL PRINCIPIO]
+// Definimos interfaces que describen únicamente lo que el repositorio necesita.
+// Esto logra un Bajo Acoplamiento: ReturnRepository ya no sabe nada de la capa 'service'.
+
+
+
+
 
 /**
  * Handles persistence of Return records in a CSV file. Since a Return
@@ -23,27 +43,47 @@ import java.util.List;
  * @author Salomejimenez
  */
 public class ReturnRepository {
+    
+    public interface SaleLookup {
+        Sale findById(String id);
+    }
+
+    public interface ProductLookup {
+        Product findById(String id);
+    }
+// =========================================================================
+// FIN EJEMPLO EXPOSICIÓN
+// =========================================================================
 
     private static String FILE_PATH = "data/returns.csv";
     private static String PRODUCT_SEPARATOR = ";";
 
+    // =========================================================================
+    // CAMBIO 2: ATRIBUTOS Y CONSTRUCTOR
+    // =========================================================================
+
+    /*
+    // [ANTES - VIOLA EL PRINCIPIO]
+    // Obligaba a inyectar toda la lógica de negocio al repositorio.
     private SaleService saleService;
     private ProductService productService;
     private AccessoryService accessoryService;
 
-    /**
-     * Wires this repository to the services it needs to resolve the
-     * Sale, Product, and Accessory objects referenced by each stored
-     * return.
-     *
-     * @param saleService used to look up the original sale by id
-     * @param productService used to look up returned products by id
-     * @param accessoryService used to look up returned accessories by id
-     */
     public ReturnRepository(SaleService saleService, ProductService productService, AccessoryService accessoryService) {
         this.saleService = saleService;
         this.productService = productService;
         this.accessoryService = accessoryService;
+    }
+    */
+
+    // [DESPUÉS - APLICA EL PRINCIPIO]
+    // Ahora solo recibe los contratos abstractos. Bajo Acoplamiento puro.
+    private final SaleLookup sales;
+    private final ProductLookup products;
+
+    public ReturnRepository(SaleLookup sales, ProductLookup products) {
+        this.sales = sales;
+        this.products = products;
     }
 
     /**
@@ -139,13 +179,31 @@ public class ReturnRepository {
         String reason = fields[4];
         double refundAmount = Double.parseDouble(fields[5]);
 
+        // =========================================================================
+        // CAMBIO 3: USO DENTRO DEL MÉTODO PARSELINE
+        // =========================================================================
+        /*
+        // [ANTES - VIOLA EL PRINCIPIO]
         Sale originalSale = saleService.getSaleById(saleId);
+        */
+        
+        // [DESPUÉS]
+        // Usa la interfaz SaleLookup
+        Sale originalSale = sales.findById(saleId);
 
         List<Product> returnedProducts = new ArrayList<>();
         if (!productIdsField.isBlank()) {
             String[] productIds = productIdsField.split(PRODUCT_SEPARATOR);
             for (String productId : productIds) {
+                /*
+                // [ANTES - VIOLA EL PRINCIPIO]
+                // Llamaba a un método feo que estaba acoplado a dos servicios distintos
                 Product found = findProductOrAccessoryById(productId);
+                */
+                
+                // [DESPUÉS]
+                // Usa la interfaz ProductLookup. ¡Mucho más limpio!
+                Product found = products.findById(productId);
                 if (found != null) {
                     returnedProducts.add(found);
                 }
@@ -155,15 +213,14 @@ public class ReturnRepository {
         return new Return(id, returnDate, originalSale, returnedProducts, reason, refundAmount);
     }
 
-    /**
-     * Looks up an id first among regular products, and only if it's
-     * not found there, among accessories — since a returned item can
-     * be either kind, but each catalog is separate.
-     *
-     * @param productId the id to look up
-     * @return the matching Product or Accessory, or null if neither
-     *         catalog has it
-     */
+    // =========================================================================
+    // CAMBIO 4: ELIMINAR LÓGICA DE NEGOCIO DEL REPOSITORIO
+    // =========================================================================
+    /* 
+    // [ANTES - VIOLA EL PRINCIPIO]
+    // Esta lógica de buscar primero en un servicio y luego en otro
+    // es lógica de negocio, no de persistencia. Se debe eliminar de aquí.
+    
     private Product findProductOrAccessoryById(String productId) {
         for (Product product : productService.getAllProducts()) {
             if (product.getId().equals(productId)) {
@@ -177,5 +234,6 @@ public class ReturnRepository {
         }
         return null;
     }
+    */
 
 }
