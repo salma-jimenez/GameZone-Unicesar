@@ -98,6 +98,11 @@ public abstract class Product {
         this.quantityAvailable = quantityAvailable;
     }
     
+    public boolean hasStock() {
+        return this.getQuantityAvailable() > 0;
+    }
+    
+    
     /**
      * Generates a formatted string representation with the specific details of the product.
      * @return a string containing the product's detailed description
