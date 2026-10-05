@@ -6,6 +6,7 @@ import com.gamezone.model.Product;
 import com.gamezone.model.Promotion;
 import com.gamezone.model.Sale;
 import com.gamezone.persistence.SaleRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -27,6 +28,10 @@ public class SaleService {
         this.accessoryService = accessoryService;
         this.promotionService = promotionService;
         this.warrantyService = warrantyService;
+    }
+    
+    public Sale createSale(String id, List<Product> products) {
+        return new Sale(id, LocalDateTime.now(), 0.0, null, products);
     }
 
     /**
