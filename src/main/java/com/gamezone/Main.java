@@ -1,5 +1,7 @@
 package com.gamezone;
 
+import com.gamezone.model.Accessory;
+import com.gamezone.model.Product;
 import com.gamezone.persistence.*;
 import com.gamezone.service.*;
 import com.gamezone.ui.ConsoleUI;
@@ -37,9 +39,26 @@ public class Main {
                 promotionService,
                 warrantyService
         );
-
-        // ReturnRepository requiere SaleService, ProductService y AccessoryService:
-        ReturnRepository returnRepository = new ReturnRepository(saleService, productService, accessoryService);
+        
+        // ReturnRepository requiere las dos implementaciones (lambdas)
+        ReturnRepository returnRepository = new ReturnRepository(
+                // 1. Implementación Lambda de SaleLookup
+                id -> saleService.getSaleById(id),
+                
+                // 2. Implementación Lambda de ProductLookup
+                id -> {
+                    Product p = productService.getProductById(id);
+                    if (p == null) {
+                        //no existe un método para buscar accesorio por id, asi que buscamos en la lista
+                        for (Accessory acc : accessoryService.listAllAccessories()) {
+                            if (acc.getId().equals(id)) {
+                                return acc;
+                            }
+                        }
+                    }
+                    return p;
+                }
+        );
         ReturnService returnService = new ReturnService(returnRepository, saleService, productService, accessoryService, warrantyService);
 
         // 3. Instanciar la Capa de Interfaz de Usuario (UI)
