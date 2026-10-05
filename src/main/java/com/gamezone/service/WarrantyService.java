@@ -1,6 +1,7 @@
 package com.gamezone.service;
 
 import com.gamezone.model.BasicWarranty;
+import com.gamezone.model.Console;
 import com.gamezone.model.ExtendedWarranty;
 import com.gamezone.model.Product;
 import com.gamezone.model.Sale;
@@ -218,5 +219,9 @@ public class WarrantyService {
 
         warrantyRepository.saveAll(remaining);
         return refundableAmount;
+    }
+    
+    public boolean isEligibleForExtended(Product product) {
+        return product instanceof Console;
     }
 }
