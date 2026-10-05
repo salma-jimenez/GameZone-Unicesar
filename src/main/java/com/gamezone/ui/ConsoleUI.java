@@ -126,9 +126,29 @@ public class ConsoleUI {
             return;
         }
 
-        // Crear objeto Venta e invocar al servicio con las garantías extendidas
+        // =========================================================================
+        // INICIO EJEMPLO EXPOSICIÓN: CREATOR (CREADOR)
+        // =========================================================================
+        
+        /*
+        // [ANTES - VIOLA EL PRINCIPIO]
+        // La capa de presentación (UI) asume la responsabilidad de instanciar 
+        // un objeto complejo del modelo de dominio (Sale), acoplándose a su constructor.
+        
         Sale sale = new Sale(id, LocalDateTime.now(), 0.0, null, products);
         saleService.registerSale(sale, extendedWarrantyProductIds);
+        */
+
+        // [DESPUÉS - APLICA EL PRINCIPIO]
+        // SaleService es quien registra, procesa y utiliza estrechamente las ventas.
+        // Por lo tanto, se le asigna la responsabilidad de ser el Creador de 'Sale'.
+        
+        Sale sale = saleService.createSale(id, products);
+        saleService.registerSale(sale, extendedWarrantyProductIds);
+
+        // =========================================================================
+        // FIN EJEMPLO EXPOSICIÓN
+        // =========================================================================
         
         JOptionPane.showMessageDialog(null, sale.generateReceipt());
     }
