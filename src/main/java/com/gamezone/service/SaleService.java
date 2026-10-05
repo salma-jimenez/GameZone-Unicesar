@@ -40,7 +40,18 @@ public void registerSale(Sale sale, List<String> extendedWarrantyProductIds) {
             throw new IllegalArgumentException("Se requiere al menos un producto para registrar la venta.");
         }
 
+        // =====================================================================
+        // INICIO EJEMPLO EXPOSICIÓN: INFORMATION EXPERT (EXPERTO EN INFORMACIÓN)
+        // =====================================================================
+        
         // 1 & 2. Validar stock de productos y accesorios antes de procesar
+        
+        /* 
+        // [ANTES - VIOLA EL PRINCIPIO]
+        // SaleService asume la responsabilidad de revisar el stock de cada producto,
+        // inspeccionando sus datos internos e incluso rompiendo la encapsulación 
+        // y el polimorfismo al verificar "instanceof".
+        
         for (Product item : sale.getProduct()) {
             if (item instanceof Accessory) {
                 if (((Accessory) item).getQuantityAvailable() < 1) {
@@ -52,7 +63,18 @@ public void registerSale(Sale sale, List<String> extendedWarrantyProductIds) {
                 }
             }
         }
+        */
 
+        // [DESPUÉS - APLICA EL PRINCIPIO]
+        // La entidad 'Sale' es la experta en conocer su lista de productos, y a su vez,
+        // cada 'Product' es experto en conocer su propio stock. El servicio solo delega.
+        
+        sale.validateStock();
+
+        // =====================================================================
+        // FIN EJEMPLO EXPOSICIÓN
+        // =====================================================================
+        
         // 3. Crear la venta y calcular el subtotal base de los ítems
         double subtotal = sale.calculateSubtotal();
         sale.setTotalAmount(subtotal); // O un método específico para subtotal si lo prefieres
