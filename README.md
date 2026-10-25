@@ -115,3 +115,20 @@ You can inspect the full architectural layout and structural relations of all 4
 layers (Model, Persistence, Services, and UI) through the visual blueprint available at:
  **[Layers Diagram Documentation](./docs/layers-diagram.md)**
 
+---
+## 🛡️ Manejo Centralizado de Excepciones
+
+El sistema implementa una jerarquía de excepciones personalizadas (`GameZoneException`)
+ para garantizar un manejo de errores robusto y una experiencia de usuario amigable en la interfaz 
+de consola (`ConsoleUI`), mostrando mensajes claros en español en lugar de trazas técnicas.
+
+### Tipos de Excepciones Personalizadas:
+- **`ResourceNotFoundException`**: Se lanza cuando no se encuentra un recurso solicitado 
+(productos, accesorios, ventas o garantías).
+- **`BusinessRuleException`**: Se lanza cuando se viola una regla de negocio del sistema 
+de ventas o promociones.
+- **`InvalidDataException`**: Se lanza cuando los datos ingresados por el usuario no son 
+válidos o tienen un formato incorrecto.
+- **`PersistenceException`**: Se lanza ante fallos de conexión o errores al interactuar 
+con la base de datos de Oracle.
+
