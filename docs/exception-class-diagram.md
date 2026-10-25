@@ -1,55 +1,79 @@
-# Markdown Cheat Sheet (Example File)
+# Exception Handling Class Diagram
 
-This is a **generic Markdown template** showcasing essential formatting features.
-
----
-
-## 1. Headers
-# H1 (Largest)
-## H2
-### H3
-#### H4
-##### H5
-###### H6 (Smallest)
-
----
-
-## 2. Text Formatting
-- **Bold** (`**text**` or `__text__`)
-- *Italic* (`*text*` or `_text_`)
-- ~~Strikethrough~~ (`~~text~~`)
-- `Inline Code` (`` `code` ``)
-- > Blockquote (prefix with `>`)
-
----
-
-## 3. Lists
-### Unordered List
-- Item 1
-- Item 2
-  - Nested Item (indent with 2 spaces)
-
-### Ordered List
-1. First item
-2. Second item
-   1. Nested item (indent with 3 spaces)
-
-### Task List
-- [x] Completed task
-- [ ] Pending task (`[ ]`)
-
----
-
-## 4. Links
-- [Hyperlink](https://example.com) (`[text](url)`)
-
----
-
-## 5. Code Blocks
-```java
-# Syntax-highlighted block (java)
-class HelloWorld {
-    public static main(String... args) {
-        System.out.println("Hello markdown");
+```mermaid
+classDiagram
+    class GameZoneException {
+        #String errorCode
+        +GameZoneException(String message)
+        +GameZoneException(String message, String errorCode)
+        +String getErrorCode()
     }
-}
+
+    class ResourceNotFoundException {
+        +ResourceNotFoundException(String resourceType, String identifier)
+    }
+
+    class BusinessRuleException {
+        +BusinessRuleException(String message)
+    }
+
+    class InvalidDataException {
+        +InvalidDataException(String field, String description)
+    }
+
+    class PersistenceException {
+        +PersistenceException(String message, Throwable cause)
+    }
+
+    GameZoneException <|-- ResourceNotFoundException
+    GameZoneException <|-- BusinessRuleException
+    GameZoneException <|-- InvalidDataException
+    GameZoneException <|-- PersistenceException
+
+    class ProductValidator {
+        +validateProductData(String id, String title, double price, int stock) void
+        +validateStockAvailability(Product product, int requestedQuantity) void
+        +validateProductExists(Product product, String productId) void
+    }
+
+    class PersonValidator {
+        +validatePersonData(String id, String name, String email, String phone) void
+        +validatePersonExists(Person person, String personId) void
+        +validateUniquePerson(List~Person~ existing, String newId) void
+    }
+
+    class SaleValidator {
+        +validateSaleData(Customer customer, Seller seller, List~Product~ products) void
+        +validateSaleExists(Sale sale, String saleId) void
+    }
+
+    class ProductService {
+        -ProductRepository repository
+        +createProduct(...) void
+    }
+
+    class PersonService {
+        -PersonRepository repository
+        +createPerson(...) void
+    }
+
+    class SaleService {
+        -SaleRepository repository
+        +registerSale(...) void
+    }
+
+    class ConsoleMenu {
+        +start() void
+        -handleException(GameZoneException e) void
+    }
+
+    ProductService --> ProductValidator : uses
+    PersonService --> PersonValidator : uses
+    SaleService --> SaleValidator : uses
+
+    ProductService ..> ResourceNotFoundException : throws
+    ProductService ..> InvalidDataException : throws
+    PersonService ..> BusinessRuleException : throws
+    SaleService ..> PersistenceException : throws
+
+    ConsoleMenu ..> GameZoneException : catches
