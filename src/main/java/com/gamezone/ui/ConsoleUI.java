@@ -5,11 +5,16 @@ import com.gamezone.service.ProductService;
 import com.gamezone.model.Promotion;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
+import com.gamezone.service.SaleService;
 import com.gamezone.service.AccessoryService;
 import com.gamezone.service.PromotionService;
 import com.gamezone.service.ReturnService;
-import com.gamezone.service.SaleService;
 import com.gamezone.service.WarrantyService;
+import com.gamezone.service.ProductService;
+import com.gamezone.exceptions.ResourceNotFoundException;
+import com.gamezone.exceptions.BusinessRuleException;
+import com.gamezone.exceptions.InvalidDataException;
+import com.gamezone.exceptions.PersistenceException;
 
 import javax.swing.JOptionPane;
 import java.time.LocalDate;
@@ -28,12 +33,7 @@ public class ConsoleUI {
     private final WarrantyService warrantyService;
     private final ProductService productService;
 
-    public ConsoleUI(SaleService saleService, 
-                     AccessoryService accessoryService, 
-                     PromotionService promotionService, 
-                     ReturnService returnService,
-                     WarrantyService warrantyService,
-                     ProductService productService) {
+    public ConsoleUI(SaleService saleService, ProductService productService, AccessoryService accessoryService, PromotionService promotionService, ReturnService returnService,WarrantyService warrantyService) {
         this.saleService = saleService;
         this.accessoryService = accessoryService;
         this.promotionService = promotionService;
@@ -75,36 +75,39 @@ public class ConsoleUI {
                     case "6" -> showWarrantyMenu();
                     default -> JOptionPane.showMessageDialog(null, "Opción no válida.");
                 }
+            } catch (ResourceNotFoundException e) {
+                JOptionPane.showMessageDialog(null, "No se encontró el recurso solicitado: " + e.getMessage(), "Error de Recurso", JOptionPane.ERROR_MESSAGE);
+            } catch (BusinessRuleException e) {
+                JOptionPane.showMessageDialog(null, "No se puede completar la operación: " + e.getMessage(), "Error de Negocio", JOptionPane.ERROR_MESSAGE);
+            } catch (InvalidDataException e) {
+                JOptionPane.showMessageDialog(null, "Los datos ingresados no son válidos: " + e.getMessage(), "Error de Datos", JOptionPane.ERROR_MESSAGE);
+            } catch (PersistenceException e) {
+                JOptionPane.showMessageDialog(null, "Ocurrió un problema al acceder a los datos del sistema. Contacte al administrador.", "Error de Persistencia", JOptionPane.ERROR_MESSAGE);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error de Validación", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error Inesperado", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    // --- OPCIÓN 1 Y 2 ORIGINALES DEL TALLER ---
     private void registerSaleUI() {
         String id = JOptionPane.showInputDialog("Ingrese ID de la venta:");
         if (id == null || id.trim().isEmpty()) return;
 
-        // Lista para los productos de la venta y lista para IDs con garantía extendida
         List<Product> products = new ArrayList<>();
         List<String> extendedWarrantyProductIds = new ArrayList<>();
 
-        // Preguntar al usuario sobre los productos a vender
         boolean addingProducts = true;
         while (addingProducts) {
             String productId = JOptionPane.showInputDialog("Ingrese el ID del producto a vender (o '0' para finalizar):");
-            if (productId.trim().equals("0")  || productId == null || productId.trim().isEmpty()) {
+            if (productId == null || productId.trim().equals("0") || productId.trim().isEmpty()) {
                 addingProducts = false;
                 break;
             }
 
-            // Buscar el producto en el catálogo
             Product product = productService.getProductById(productId);
             if (product != null) {
                 products.add(product);
 
-                // Si es una consola, preguntar si requiere garantía extendida
                 if (product instanceof com.gamezone.model.Console) {
                     int confirm = JOptionPane.showConfirmDialog(
                         null,
@@ -126,7 +129,6 @@ public class ConsoleUI {
             return;
         }
 
-        // Crear objeto Venta e invocar al servicio con las garantías extendidas
         Sale sale = new Sale(id, LocalDateTime.now(), 0.0, null, products);
         saleService.registerSale(sale, extendedWarrantyProductIds);
         
@@ -141,7 +143,6 @@ public class ConsoleUI {
         JOptionPane.showMessageDialog(null, builder.toString());
     }
 
-    // --- SUBMENÚ REQUERIMIENTO 1: ACCESORIOS ---
     private void showAccessoryMenu() {
         boolean back = false;
         while (!back) {
@@ -169,6 +170,14 @@ public class ConsoleUI {
                     case "3" -> deleteAccessory();
                     default -> JOptionPane.showMessageDialog(null, "Opción no válida.");
                 }
+            } catch (ResourceNotFoundException e) {
+                JOptionPane.showMessageDialog(null, "No se encontró el recurso solicitado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (BusinessRuleException e) {
+                JOptionPane.showMessageDialog(null, "No se puede completar la operación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (InvalidDataException e) {
+                JOptionPane.showMessageDialog(null, "Los datos ingresados no son válidos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (PersistenceException e) {
+                JOptionPane.showMessageDialog(null, "Ocurrió un problema al acceder a los datos del sistema. Contacte al administrador.", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -204,7 +213,6 @@ public class ConsoleUI {
         JOptionPane.showMessageDialog(null, "Accesorio eliminado exitosamente.");
     }
 
-    // --- SUBMENÚ REQUERIMIENTO 2: GESTIÓN DE PROMOCIONES ---
     private void showPromotionMenu() {
         boolean back = false;
         while (!back) {
@@ -236,8 +244,16 @@ public class ConsoleUI {
                     case "5" -> listActivePromotions();
                     default -> JOptionPane.showMessageDialog(null, "Opción no válida.");
                 }
+            } catch (ResourceNotFoundException e) {
+                JOptionPane.showMessageDialog(null, "No se encontró el recurso solicitado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (BusinessRuleException e) {
+                JOptionPane.showMessageDialog(null, "No se puede completar la operación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (InvalidDataException e) {
+                JOptionPane.showMessageDialog(null, "Los datos ingresados no son válidos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (PersistenceException e) {
+                JOptionPane.showMessageDialog(null, "Ocurrió un problema al acceder a los datos del sistema. Contacte al administrador.", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error de Promociones", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -298,7 +314,6 @@ public class ConsoleUI {
         JOptionPane.showMessageDialog(null, sb.toString());
     }
 
-    // --- SUBMENÚ REQUERIMIENTO 3: GESTIÓN DE DEVOLUCIONES Y BALANCE ---
     private void showReturnMenu() {
         boolean back = false;
         while (!back) {
@@ -330,8 +345,16 @@ public class ConsoleUI {
                     case "5" -> showMonthlyBalanceUI();
                     default -> JOptionPane.showMessageDialog(null, "Opción no válida.");
                 }
+            } catch (ResourceNotFoundException e) {
+                JOptionPane.showMessageDialog(null, "No se encontró el recurso solicitado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (BusinessRuleException e) {
+                JOptionPane.showMessageDialog(null, "No se puede completar la operación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (InvalidDataException e) {
+                JOptionPane.showMessageDialog(null, "Los datos ingresados no son válidos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (PersistenceException e) {
+                JOptionPane.showMessageDialog(null, "Ocurrió un problema al acceder a los datos del sistema. Contacte al administrador.", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error de Devolución", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -399,11 +422,17 @@ public class ConsoleUI {
         if (yearStr == null) return;
         int year = Integer.parseInt(yearStr);
 
+        double totalSales = returnService.calculateMonthlySales(month, year);
+        double totalReturns = returnService.calculateMonthlyReturns(month, year);
         double balance = returnService.generateMonthlyBalance(month, year);
-        JOptionPane.showMessageDialog(null, "El balance neto para el período " + month + "/" + year + " es: $" + String.format("%.2f", balance));
+
+        JOptionPane.showMessageDialog(null,
+            "--- Balance del período " + month + "/" + year + " ---\n"
+            + "Total de ventas: $" + String.format("%.2f", totalSales) + "\n"
+            + "Total de devoluciones: $" + String.format("%.2f", totalReturns) + "\n"
+            + "Balance neto: $" + String.format("%.2f", balance));
     }
 
-    // --- SUBMENÚ REQUERIMIENTO 4: GESTIÓN DE GARANTÍAS ---
     private void showWarrantyMenu() {
         boolean back = false;
         while (!back) {
@@ -433,8 +462,16 @@ public class ConsoleUI {
                     case "4" -> listExpiringWarrantiesUI();
                     default -> JOptionPane.showMessageDialog(null, "Opción no válida.");
                 }
+            } catch (ResourceNotFoundException e) {
+                JOptionPane.showMessageDialog(null, "No se encontró el recurso solicitado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (BusinessRuleException e) {
+                JOptionPane.showMessageDialog(null, "No se puede completar la operación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (InvalidDataException e) {
+                JOptionPane.showMessageDialog(null, "Los datos ingresados no son válidos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (PersistenceException e) {
+                JOptionPane.showMessageDialog(null, "Ocurrió un problema al acceder a los datos del sistema. Contacte al administrador.", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error de Garantías", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

@@ -4,55 +4,39 @@ import com.gamezone.persistence.*;
 import com.gamezone.service.*;
 import com.gamezone.ui.ConsoleUI;
 
-/**
- * Main entry point for the GameZone Management Application. Instantiates layers
- * and launches the User Interface.
- *
- * @author Salma Jiménez Vega
- * @version 1.0
- */
 public class Main {
-
-    public static void main(String[] args) {
-        // 1. Instanciar Capa de Persistencia (Repositories básicos)
-        ProductRepository productRepository = new ProductRepository();
-        PersonRepository personRepository = new PersonRepository();
+    public static void main(String[] args, ReturnService returnService) {
+        // Instanciación de Capas de Persistencia
         SaleRepository saleRepository = new SaleRepository();
+        ProductRepository productRepository = new ProductRepository();
         AccessoryRepository accessoryRepository = new AccessoryRepository();
         PromotionRepository promotionRepository = new PromotionRepository();
         WarrantyRepository warrantyRepository = new WarrantyRepository();
 
-        // 2. Instanciar Capa de Servicios (Services básicos)
+        // Instanciación de Servicios con sus respectivos repositorios inyectados
         ProductService productService = new ProductService(productRepository);
-        PersonService personService = new PersonService(personRepository);
-        WarrantyService warrantyService = new WarrantyService(warrantyRepository, saleRepository, productService);
         AccessoryService accessoryService = new AccessoryService(accessoryRepository);
         PromotionService promotionService = new PromotionService(promotionRepository);
+        WarrantyService warrantyService = new WarrantyService(warrantyRepository,saleRepository,productService);
 
-        // SaleService requiere los 5 parámetros exactos que indica el error:
+        // Inyección de dependencias en SaleService (Solución a V-01)
         SaleService saleService = new SaleService(
-                saleRepository,
-                productService,
-                accessoryService,
-                promotionService,
-                warrantyService
+            saleRepository, 
+            productService, 
+            accessoryService, 
+            promotionService, 
+            warrantyService
         );
 
-        // ReturnRepository requiere SaleService, ProductService y AccessoryService:
-        ReturnRepository returnRepository = new ReturnRepository(saleService, productService, accessoryService);
-        ReturnService returnService = new ReturnService(returnRepository, saleService, productService, accessoryService, warrantyService);
-
-        // 3. Instanciar la Capa de Interfaz de Usuario (UI)
+        // Inicio de la Interfaz de Usuario
         ConsoleUI consoleUI = new ConsoleUI(
-                saleService,
-                accessoryService,
-                promotionService,
-                returnService,
-                warrantyService,
-                productService
+            saleService, 
+            productService, 
+            accessoryService, 
+            promotionService,
+            returnService,
+            warrantyService
         );
-
-        // 4. Iniciar la Aplicación
         consoleUI.start();
     }
 }
