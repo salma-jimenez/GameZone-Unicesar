@@ -145,3 +145,43 @@ to guide individual analysis of `SaleService` and `ConsoleUI`.
 `docs/grasp-audit/` and `docs/grasp-analysis.md`. 
 -Applied standard Markdown structure 
 for audit tables and headings. 
+
+---
+
+# 9. SOLID Refactoring Log & No-Regression Verification - GameZone-Unicesar
+
+**Branch:** `feature/solid-refactor`  
+**Technical Leader:** Salma Jiménez Vega  
+**Date:** October 2026  
+
+---
+
+## 1. Summary of Applied Corrections
+
+| Violation ID | Principle | Affected Class | Refactoring Description | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **V-01** | SRP | `ConsoleUI` | Extracted dialog prompts, option handling, and exception display into isolated helper methods (`promptInput`, `showErrorMessage`, `showInformationMessage`). | Verified |
+| **V-03** | DIP | `SaleService` / `SaleRepository` | Created `ISaleRepository` interface and updated `SaleService` to depend on the interface abstraction rather than concrete implementation. | Verified |
+
+---
+
+## 2. No-Regression Black-Box Verification Plan
+
+To ensure zero behavior regression across system modules after refactoring:
+
+### Test Case 1: Register Sale with Warranty Options
+- **Input:** Sale ID `S-101`, Product ID `CON001` (PS5 Console), Select Extended Warranty = `YES`.
+- **Expected Outcome:** Basic Warranty automatically assigned, Extended Warranty added to total cost, stock reduced by 1 unit, receipt generated matching exact legacy receipt format.
+- **Result:** PASSED (No regression).
+
+### Test Case 2: Query All Sales
+- **Input:** Menu Option `2` (Ver Todas las Ventas).
+- **Expected Outcome:** Text output matching receipt string generated in Test Case 1.
+- **Result:** PASSED (No regression).
+
+### Test Case 3: Invalid Option Handling
+- **Input:** Main Menu Option `99`.
+- **Expected Outcome:** Error message dialog displaying `"Opción no válida."`.
+- **Result:** PASSED (No regression).
+
+---
