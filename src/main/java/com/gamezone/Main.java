@@ -5,7 +5,7 @@ import com.gamezone.service.*;
 import com.gamezone.ui.ConsoleUI;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args, ReturnService returnService) {
         // Instanciación de Capas de Persistencia
         SaleRepository saleRepository = new SaleRepository();
         ProductRepository productRepository = new ProductRepository();
@@ -17,7 +17,7 @@ public class Main {
         ProductService productService = new ProductService(productRepository);
         AccessoryService accessoryService = new AccessoryService(accessoryRepository);
         PromotionService promotionService = new PromotionService(promotionRepository);
-        WarrantyService warrantyService = new WarrantyService(warrantyRepository);
+        WarrantyService warrantyService = new WarrantyService(warrantyRepository,saleRepository,productService);
 
         // Inyección de dependencias en SaleService (Solución a V-01)
         SaleService saleService = new SaleService(
@@ -33,7 +33,8 @@ public class Main {
             saleService, 
             productService, 
             accessoryService, 
-            promotionService, 
+            promotionService,
+            returnService,
             warrantyService
         );
         consoleUI.start();
