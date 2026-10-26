@@ -145,3 +145,20 @@ to guide individual analysis of `SaleService` and `ConsoleUI`.
 `docs/grasp-audit/` and `docs/grasp-analysis.md`. 
 -Applied standard Markdown structure 
 for audit tables and headings. 
+
+---
+# AI Usage Log - Technical Leader (Salma Jiménez Vega)
+
+## Phase 1: Audit
+- **Date:** October 2026
+- **Tool Used:** Gemini / ChatGPT (Conceptual assistance)
+- **Legitimate Uses:**
+  - Consulted conceptual clarifications regarding Dependency Inversion Principle 
+(DIP) application between services and repositories in a 3-tier layered architecture.
+  - Requested verification on Markdown syntax formatting for auditing reports and 
+boundary matrix tables.
+  - Reviewed Git command sequences for creating and pushing the `feature/solid-audit` 
+branch following Conventional Commits guidelines.
+- **Non-Allowed Practices Avoided:** Did not request the AI to generate the complete 
+system audit report or directly answer the guiding questions (`solid-analysis.md`) 
+without personal code analysis.

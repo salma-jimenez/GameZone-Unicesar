@@ -33,7 +33,7 @@ public class ConsoleUI {
     private final WarrantyService warrantyService;
     private final ProductService productService;
 
-    public ConsoleUI(SaleService saleService, ProductService productService, AccessoryService accessoryService, PromotionService promotionService, WarrantyService warrantyService) {
+    public ConsoleUI(SaleService saleService, ProductService productService, AccessoryService accessoryService, PromotionService promotionService, ReturnService returnService,WarrantyService warrantyService) {
         this.saleService = saleService;
         this.accessoryService = accessoryService;
         this.promotionService = promotionService;
