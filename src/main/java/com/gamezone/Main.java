@@ -17,8 +17,8 @@ public class Main {
         ProductService productService = new ProductService(productRepository);
         AccessoryService accessoryService = new AccessoryService(accessoryRepository);
         PromotionService promotionService = new PromotionService(promotionRepository);
-        WarrantyService warrantyService = new WarrantyService(warrantyRepository,saleRepository,productService);
-
+        WarrantyService warrantyService = new WarrantyService(warrantyRepository, saleRepository, productService);
+            
         // Inyección de dependencias en SaleService (Solución a V-01)
         SaleService saleService = new SaleService(
             saleRepository, 

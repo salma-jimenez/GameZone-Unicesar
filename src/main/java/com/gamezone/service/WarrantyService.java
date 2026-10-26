@@ -36,7 +36,7 @@ public class WarrantyService {
      * @param saleRepository repository used to look up sales by id
      * @param productService service used to look up products by id
      */
-    public WarrantyService(WarrantyRepository warrantyRepository, SaleRepository saleRepository, ProductService productService) {
+   public WarrantyService(WarrantyRepository warrantyRepository, SaleRepository saleRepository, ProductService productService) {
         this.warrantyRepository = warrantyRepository;
         this.saleRepository = saleRepository;
         this.productService = productService;
