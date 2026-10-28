@@ -1,13 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
- */
 package com.gamezone.persistence;
 
+import com.gamezone.model.Sale;
+import java.util.List;
+
 /**
- *
- * @author salma
+ * Interface defining persistence operations for Sale entities,
+ * adhering to the Dependency Inversion Principle (DIP).
+ * 
+ * @author Salma Jiménez Vega
  */
 public interface ISaleRepository {
-    
+    void save(Sale sale);
+    List<Sale> findAll();
+    Sale findById(String id);
 }

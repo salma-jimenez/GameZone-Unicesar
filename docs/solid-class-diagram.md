@@ -1,55 +1,67 @@
-# Markdown Cheat Sheet (Example File)
+# Class Diagrams - SOLID Refactoring (GameZone-Unicesar)
 
-This is a **generic Markdown template** showcasing essential formatting features.
+## Architecture Overview (Post-Refactoring)
 
----
+This document presents the Mermaid class diagram showing the design improvements introduced during Phase 2 to resolve SOLID violations.
 
-## 1. Headers
-# H1 (Largest)
-## H2
-### H3
-#### H4
-##### H5
-###### H6 (Smallest)
+### Key Refactoring Highlights:
+1. **Dependency Inversion Principle (DIP - V-03):** Introduced `ISaleRepository` interface so that `SaleService` no longer depends on concrete storage implementations.
+2. **Single Responsibility Principle (SRP - V-01):** Reorganized `ConsoleUI` to delegate dialog prompts, input reading, and exception messaging into distinct internal helper methods (`promptInput`, `showErrorMessage`, `showInformationMessage`).
 
 ---
 
-## 2. Text Formatting
-- **Bold** (`**text**` or `__text__`)
-- *Italic* (`*text*` or `_text_`)
-- ~~Strikethrough~~ (`~~text~~`)
-- `Inline Code` (`` `code` ``)
-- > Blockquote (prefix with `>`)
+## Post-Refactoring Class Diagram (After SOLID Refactoring)
 
----
-
-## 3. Lists
-### Unordered List
-- Item 1
-- Item 2
-  - Nested Item (indent with 2 spaces)
-
-### Ordered List
-1. First item
-2. Second item
-   1. Nested item (indent with 3 spaces)
-
-### Task List
-- [x] Completed task
-- [ ] Pending task (`[ ]`)
-
----
-
-## 4. Links
-- [Hyperlink](https://example.com) (`[text](url)`)
-
----
-
-## 5. Code Blocks
-```java
-# Syntax-highlighted block (java)
-class HelloWorld {
-    public static main(String... args) {
-        System.out.println("Hello markdown");
+```mermaid
+classDiagram
+    namespace Persistence {
+        class ISaleRepository {
+            <<interface>>
+            +save(Sale sale) void
+            +findAll() List~Sale~
+            +findById(String id) Sale
+        }
+        
+        class SaleRepository {
+            -List~Sale~ sales
+            +save(Sale sale) void
+            +findAll() List~Sale~
+            +findById(String id) Sale
+        }
     }
-}
+
+    namespace Services {
+        class SaleService {
+            -ISaleRepository saleRepository
+            -ProductService productService
+            -AccessoryService accessoryService
+            -PromotionService promotionService
+            -WarrantyService warrantyService
+            +SaleService(ISaleRepository saleRepository, ProductService productService, AccessoryService accessoryService, PromotionService promotionService, WarrantyService warrantyService)
+            +registerSale(Sale sale, List~String~ extendedWarrantyProductIds) void
+            +registerSale(Sale sale) void
+            +getAllSales() List~Sale~
+            +getSaleById(String id) Sale
+        }
+    }
+
+    namespace UI {
+        class ConsoleUI {
+            -SaleService saleService
+            -AccessoryService accessoryService
+            -PromotionService promotionService
+            -ReturnService returnService
+            -WarrantyService warrantyService
+            -ProductService productService
+            +start() void
+            -showMainMenu() String
+            -processMainMenuOption(String optionStr) void
+            -promptInput(String message) String
+            -showErrorMessage(String message) void
+            -showInformationMessage(String message) void
+        }
+    }
+
+    ISaleRepository <|.. SaleRepository : implements
+    SaleService --> ISaleRepository : depends on abstraction
+    ConsoleUI --> SaleService : uses
