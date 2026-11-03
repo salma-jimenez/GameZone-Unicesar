@@ -99,6 +99,12 @@ public abstract class Product {
     }
     
     /**
+    * Gets the category string of the product for promotional purposes.
+    * @return the product category as a string
+    */
+    public abstract String getProductCategory();
+    
+    /**
      * Generates a formatted string representation with the specific details of the product.
      * @return a string containing the product's detailed description
      */

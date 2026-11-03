@@ -78,6 +78,10 @@ public class Console extends Product{
         this.generation = generation;
     }
 
+    @Override
+    public String getProductCategory() {
+        return "CONSOLE";
+    }
     /**
      * {@inheritDoc}
      * Returns a formatted summary including the console details.
